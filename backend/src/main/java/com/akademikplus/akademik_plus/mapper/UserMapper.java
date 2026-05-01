@@ -16,6 +16,10 @@ public class UserMapper {
         dto.setPhone(user.getPhone());
         dto.setRole(user.getRole());
         dto.setIsActive(user.getIsActive());
+        dto.setPesel(user.getPesel());
+        dto.setCountryOfOrigin(user.getCountryOfOrigin());
+        dto.setDisability(user.getDisability());
+        dto.setPersonalPreferences(user.getPersonalPreferences());
 
         dto.setProfilePhoto(user.getProfilePhoto());
 
@@ -33,6 +37,10 @@ public class UserMapper {
         user.setPhone(dto.getPhone());
         user.setRole(dto.getRole());
         user.setProfilePhoto(dto.getProfilePhoto());
+        user.setPesel(dto.getPesel());
+        user.setDisability(dto.getDisability());
+        user.setCountryOfOrigin(dto.getCountryOfOrigin());
+        user.setPersonalPreferences(dto.getPersonalPreferences());
 
         user.setPasswordHash(dto.getPassword());
 

@@ -8,6 +8,10 @@ public class UserResponseDTO {
     private String firstName;
     private String lastName;
     private String email;
+    private String pesel;
+    private String countryOfOrigin;
+    private String disability;
+    private String personalPreferences;
     private String phone;
     private String role;
     private Boolean isActive;
