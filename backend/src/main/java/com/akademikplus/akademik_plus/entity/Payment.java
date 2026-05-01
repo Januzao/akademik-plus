@@ -27,6 +27,9 @@ public class Payment {
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
+    @Column(name = "transaction_id")
+    private String transactionId;
+
     @Column(name = "paid_for")
     private String PaidFor;
 
