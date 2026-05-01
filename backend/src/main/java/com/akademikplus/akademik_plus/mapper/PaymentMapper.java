@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PaymentMapper {
-    public PaymentResponseDTO toRespond(Payment payment) {
+    public PaymentResponseDTO toResponse(Payment payment) {
         PaymentResponseDTO dto = new PaymentResponseDTO();
         dto.setId(payment.getId());
         dto.setAmount(payment.getAmount());

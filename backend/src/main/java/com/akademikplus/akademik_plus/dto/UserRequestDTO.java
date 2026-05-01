@@ -16,5 +16,5 @@ public class UserRequestDTO {
     private String role;
     private String profilePhoto;
     private Boolean isActive;
-    private Integer roomId;
+    private Long roomId;
 }
