@@ -12,4 +12,10 @@ public class PaymentResponseDTO {
     private String paidFor;
     private LocalDate paymentDate;
     private String status;
+    private String transactionId;
+
+
+    private Long tenantId;
+    private String tenantName;
+    private String roomNumber;
 }
