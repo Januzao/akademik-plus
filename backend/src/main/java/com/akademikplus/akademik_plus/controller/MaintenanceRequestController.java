@@ -21,7 +21,7 @@ public class MaintenanceRequestController {
     }
 
     @GetMapping("/{id}")
-    public MaintenanceRequest getById(@PathVariable Integer id) {
+    public MaintenanceRequest getById(@PathVariable Long id) {
         return maintenanceRequestService.findById(id);
     }
 
@@ -31,7 +31,7 @@ public class MaintenanceRequestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         maintenanceRequestService.delete(id);
         return ResponseEntity.noContent().build();
     }

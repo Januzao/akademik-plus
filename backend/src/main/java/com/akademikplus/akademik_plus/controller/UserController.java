@@ -1,7 +1,7 @@
 package com.akademikplus.akademik_plus.controller;
 
-import com.akademikplus.akademik_plus.entity.User;
-import com.akademikplus.akademik_plus.service.RoomService;
+import com.akademikplus.akademik_plus.dto.UserRequestDTO;
+import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,27 +17,27 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getAll(){
+    public List<UserResponseDTO> getAll(){
         return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Integer id) {
+    public UserResponseDTO getById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
+    public ResponseEntity<UserResponseDTO> create(@RequestBody UserRequestDTO user) {
         return new ResponseEntity<>(userService.create(user), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public User update(@PathVariable Integer id, @RequestBody User user) {
+    public UserResponseDTO update(@PathVariable Long id, @RequestBody UserRequestDTO user) {
         return userService.update(id, user);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
