@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class MaintenanceRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,4 +37,7 @@ public class MaintenanceRequest {
     private LocalDate requestDate;
 
     private String description;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
 }

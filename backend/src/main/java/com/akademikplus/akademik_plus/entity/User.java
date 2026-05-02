@@ -23,13 +23,25 @@ import lombok.Setter;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @Column(name = "pesel")
+    private String pesel;
+
+    @Column(name = "country_of_origin")
+    private String countryOfOrigin;
+
+    @Column(name = "disability")
+    private String disability;
+
+    @Column(name = "personal_preferences", columnDefinition = "TEXT")
+    private String personalPreferences;
 
     @Column(name = "email", unique = true)
     private String email;

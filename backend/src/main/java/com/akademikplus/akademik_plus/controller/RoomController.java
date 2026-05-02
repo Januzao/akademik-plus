@@ -23,7 +23,7 @@ public class RoomController {
     }
 
     @GetMapping("/{id}")
-    public RoomResponseDTO getById(@PathVariable Integer id) {
+    public RoomResponseDTO getById(@PathVariable Long id) {
         return roomService.findById(id);
     }
 
@@ -33,12 +33,12 @@ public class RoomController {
     }
 
     @PutMapping("/{id}")
-    public RoomResponseDTO update(@PathVariable Integer id, @RequestBody RoomRequestDTO room) {
+    public RoomResponseDTO update(@PathVariable Long id, @RequestBody RoomRequestDTO room) {
         return roomService.update(id, room);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         roomService.delete(id);
         return ResponseEntity.noContent().build();
     }

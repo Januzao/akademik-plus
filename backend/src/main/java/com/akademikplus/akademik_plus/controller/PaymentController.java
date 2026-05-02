@@ -23,7 +23,7 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    public Payment getById(@PathVariable Integer id) {
+    public Payment getById(@PathVariable Long id) {
         return paymentService.findById(id);
     }
 
@@ -33,7 +33,7 @@ public class PaymentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         paymentService.delete(id);
         return ResponseEntity.noContent().build();
     }

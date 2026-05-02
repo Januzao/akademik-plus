@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RoomResponseDTO {
-    private Integer id;
+    private Long id;
     private String roomNumber;
     private String roomType;
     private String occupancyStatus;

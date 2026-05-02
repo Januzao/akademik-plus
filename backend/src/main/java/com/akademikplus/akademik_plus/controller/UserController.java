@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserResponseDTO getById(@PathVariable Integer id) {
+    public UserResponseDTO getById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
@@ -32,12 +32,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserResponseDTO update(@PathVariable Integer id, @RequestBody UserRequestDTO user) {
+    public UserResponseDTO update(@PathVariable Long id, @RequestBody UserRequestDTO user) {
         return userService.update(id, user);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }

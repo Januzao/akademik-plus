@@ -27,7 +27,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponseDTO findById(Integer id) {
+    public UserResponseDTO findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Payment did not found with id: " + id));
         return userMapper.toResponse(user);
@@ -47,7 +47,7 @@ public class UserService {
         return userMapper.toResponse(savedUser);
     }
 
-    public UserResponseDTO update(Integer id, UserRequestDTO userRequestDTO) {
+    public UserResponseDTO update(Long id, UserRequestDTO userRequestDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         user.setFirstName(userRequestDTO.getFirstName());
@@ -66,7 +66,7 @@ public class UserService {
         return userMapper.toResponse(updatedUser);
     }
 
-    public void delete(Integer id) {
+    public void delete(Long id) {
         userRepository.deleteById(id);
     }
 }

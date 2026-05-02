@@ -16,7 +16,7 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
     
-    public Payment findById(Integer id) {
+    public Payment findById(Long id) {
         return paymentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Payment did not found with id: " + id));
     }
@@ -25,7 +25,7 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
     
-    public void delete(Integer id) {
+    public void delete(Long id) {
         paymentRepository.deleteById(id);
     }
 }

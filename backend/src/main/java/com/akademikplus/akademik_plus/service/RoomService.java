@@ -25,7 +25,7 @@ public class RoomService {
                 .collect(Collectors.toList());
     }
 
-    public RoomResponseDTO findById(Integer id) {
+    public RoomResponseDTO findById(Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Room did not found with id: " + id));
         return roomMapper.toResponse(room);
@@ -39,7 +39,7 @@ public class RoomService {
         return roomMapper.toResponse(savedRoom);
     }
 
-    public RoomResponseDTO update(Integer id, RoomRequestDTO roomRequestDTO) {
+    public RoomResponseDTO update(Long id, RoomRequestDTO roomRequestDTO) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cannot find room with id: " + id));
 
@@ -63,7 +63,7 @@ public class RoomService {
         return roomMapper.toResponse(updatedRoom);
     }
 
-    public void delete(Integer id) {
+    public void delete(Long id) {
         roomRepository.deleteById(id);
     }
 }
