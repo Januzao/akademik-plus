@@ -31,7 +31,7 @@ public class Payment {
     private String transactionId;
 
     @Column(name = "paid_for")
-    private String PaidFor;
+    private String paidFor;
 
     @Column(name = "payment_date")
     private LocalDate paymentDate;
