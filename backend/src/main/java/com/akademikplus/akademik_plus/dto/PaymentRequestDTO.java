@@ -6,7 +6,8 @@ import java.math.BigDecimal;
 
 @Data
 public class PaymentRequestDTO {
-    private String PaidFor;
-    private String transactionId;
+    private Long userId;
+    private String paidFor;
+    private String stripeToken;
     private BigDecimal amount;
 }
