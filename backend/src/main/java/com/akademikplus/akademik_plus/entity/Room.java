@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "rooms")
 @Getter
@@ -39,4 +41,7 @@ public class Room {
 
     @Column(name = "floor_number")
     private Integer floorNumber;
+
+    @Column(name = "rent_price")
+    private BigDecimal rentPrice;
 }
