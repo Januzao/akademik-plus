@@ -1,5 +1,7 @@
 package com.akademikplus.akademik_plus.controller;
 
+import com.akademikplus.akademik_plus.dto.RoomRequestDTO;
+import com.akademikplus.akademik_plus.dto.RoomResponseDTO;
 import com.akademikplus.akademik_plus.entity.Room;
 import com.akademikplus.akademik_plus.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -16,27 +18,27 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping
-    public List<Room> getAll(){
+    public List<RoomResponseDTO> getAll(){
         return roomService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Room getById(@PathVariable Integer id) {
+    public RoomResponseDTO getById(@PathVariable Long id) {
         return roomService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Room> create(@RequestBody Room room) {
+    public ResponseEntity<RoomResponseDTO> create(@RequestBody RoomRequestDTO room) {
         return new ResponseEntity<>(roomService.create(room), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public Room update(@PathVariable Integer id, @RequestBody Room room) {
+    public RoomResponseDTO update(@PathVariable Long id, @RequestBody RoomRequestDTO room) {
         return roomService.update(id, room);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         roomService.delete(id);
         return ResponseEntity.noContent().build();
     }
