@@ -4,6 +4,7 @@ import com.akademikplus.akademik_plus.dto.RoomRequestDTO;
 import com.akademikplus.akademik_plus.dto.RoomResponseDTO;
 import com.akademikplus.akademik_plus.entity.Room;
 import com.akademikplus.akademik_plus.service.RoomService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rooms")
 @RequiredArgsConstructor
+@Tag(name = "Rooms", description = "Room management endpoints")
 public class RoomController {
     private final RoomService roomService;
 
