@@ -60,6 +60,8 @@ public class User {
     @Column(name = "profile_photo")
     private String profilePhoto;
 
+    @Column(name = "balance", precision = 10, scale = 2)
+    private BigDecimal balance;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
