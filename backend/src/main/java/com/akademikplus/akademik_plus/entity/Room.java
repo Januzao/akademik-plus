@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "room_number", nullable = false)
     private String roomNumber;
@@ -42,6 +42,6 @@ public class Room {
     @Column(name = "floor_number")
     private Integer floorNumber;
 
-    @Column(name = "rent_price", precision = 10, scale = 2)
+    @Column(name = "rent_price")
     private BigDecimal rentPrice;
 }
