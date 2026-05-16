@@ -31,8 +31,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="bg-[#f0f4f0] min-h-screen px-8 py-8">
-      <div className="grid grid-cols-2 gap-5 w-full max-w-6xl mx-auto">
+    <div className="bg-[#f0f4f0] py-8">
+      <div className="grid grid-cols-2 gap-5 w-full max-w-7xl mx-auto">
 
         {/* Left card — toggles between details and edit */}
         {isEditing ? (
