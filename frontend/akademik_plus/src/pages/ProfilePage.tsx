@@ -1,18 +1,23 @@
+"use client";
+
+import { useState } from "react";
+
+const MIN_YEAR = 2025;
+const MAX_YEAR = 2026;
+
 export default function ProfilePage() {
+  const [year, setYear] = useState(2026);
+
   return (
     <div className="bg-[#f0f4f0] min-h-screen px-8 py-8">
-
-      {/* Two column grid — full width with small margin */}
       <div className="grid grid-cols-2 gap-5 w-full max-w-6xl mx-auto">
 
         {/* Left card */}
         <div className="bg-white rounded-2xl border border-green-100 shadow-sm p-7">
-
-          {/* Card header */}
           <h2 className="text-lg font-semibold text-gray-800">Profile</h2>
           <p className="text-xs text-gray-400 mt-0.5 mb-5">Manage your account information</p>
 
-          {/* Profile photo block */}
+          {/* Profile photo */}
           <div className="flex items-center gap-4 mb-6">
             <div className="size-16 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-semibold text-lg shrink-0">
               JS
@@ -21,20 +26,19 @@ export default function ProfilePage() {
               <span className="text-sm font-semibold text-gray-800">Profile Photo</span>
               <span className="text-xs text-gray-400">Update your profile picture</span>
               <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mt-1 transition-colors">
-                <svg className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                <svg className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+                </svg>
                 Upload Photo
               </button>
             </div>
           </div>
 
-          {/* Separation line */}
           <div className="h-px bg-green-100 w-full my-4" />
 
-          {/* Basic Information */}
           <h3 className="text-sm font-semibold text-gray-800 mb-4">Basic Information</h3>
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-
             {/* First Name */}
             <div className="flex flex-col gap-1">
               <label className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
@@ -71,7 +75,7 @@ export default function ProfilePage() {
               <input type="text" defaultValue="+48 (234) 567-890" className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-green-200" />
             </div>
 
-            {/* Email Address — spans both columns */}
+            {/* Email Address */}
             <div className="flex flex-col gap-1 col-span-2">
               <label className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
                 <svg className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
@@ -79,10 +83,8 @@ export default function ProfilePage() {
               </label>
               <input type="email" defaultValue="john.smith@example.com" className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-green-200" />
             </div>
-
           </div>
 
-          {/* Separation line */}
           <div className="h-px bg-green-100 w-full my-5" />
 
           {/* Action buttons */}
@@ -99,14 +101,64 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
-
         </div>
 
-        {/* Right card — empty for now */}
-        <div className="bg-white rounded-2xl border border-green-100 shadow-sm p-7">
+        {/* ── Right card — Payment History ── */}
+        <div className="bg-white rounded-2xl border border-green-100 shadow-sm p-7 flex flex-col">
+
+          {/* Card header */}
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">Payment History</h2>
+            </div>
+            <button className="flex items-center gap-1.5 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors">
+              {/* credit-card icon */}
+              <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z"/>
+              </svg>
+              Make a Payment
+            </button>
+          </div>
+
+          {/* Year navigator */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs text-gray-400">Payments for {year}</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setYear((y) => Math.max(MIN_YEAR, y - 1))}
+                disabled={year <= MIN_YEAR}
+                className="size-6 flex items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+              </button>
+              <span className="text-sm font-semibold text-gray-700 w-10 text-center">{year}</span>
+              <button
+                onClick={() => setYear((y) => Math.min(MAX_YEAR, y + 1))}
+                disabled={year >= MAX_YEAR}
+                className="size-6 flex items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div className="h-px bg-green-100 w-full mb-4" />
+
+          {/* Payment list */}
+          <div className="flex-1 flex flex-col gap-0 overflow-y-auto">
+            <span className="text-sm font-bold text-gray-800">list of payments</span>
+          </div>
+
+          {/* Footer total */}
+          <div className="h-px bg-green-100 w-full mt-4 mb-4" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-400">Total Paid in {year}</span>
+            <span className="text-sm font-bold text-gray-800">total number</span>
+          </div>
+
         </div>
 
       </div>
     </div>
-  )
+  );
 }
