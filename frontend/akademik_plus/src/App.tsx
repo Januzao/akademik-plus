@@ -1,9 +1,15 @@
-import './App.css'
-
+import { Routes, Route } from 'react-router-dom'
+import Layout from './components/Layout'
 import MainPage from './pages/MainPage'
+import ProfilePage from './pages/ProfilePage'
 
-function App() {
-  return <MainPage />
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/account" element={<ProfilePage />} />
+      </Route>
+    </Routes>
+  )
 }
-
-export default App
