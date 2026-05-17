@@ -23,7 +23,11 @@ const paymentsData: Record<number, Payment[]> = {
 const MIN_YEAR = 2025;
 const MAX_YEAR = 2026;
 
-export default function ProfilePaymentCard() {
+interface ProfilePaymentCardProps {
+  onMakePayment: () => void;
+}
+
+export default function ProfilePaymentCard({ onMakePayment }: ProfilePaymentCardProps) {
   const [year, setYear] = useState(2026);
 
   const payments = paymentsData[year] ?? [];
@@ -35,10 +39,10 @@ export default function ProfilePaymentCard() {
       {/* Card header */}
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-semibold text-gray-800">Payment History</h2>
-        <button className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
-          <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z"/>
-          </svg>
+        <button
+          onClick={onMakePayment}
+          className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+          >
           Make a Payment
         </button>
       </div>

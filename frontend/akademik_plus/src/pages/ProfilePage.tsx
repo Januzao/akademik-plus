@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ProfileDetailsCard from "../components/ProfileDetailsCard";
 import ProfileEditCard from "../components/ProfileEditCard";
 import ProfilePaymentCard from "../components/ProfilePaymentCard";
@@ -22,6 +23,7 @@ const DEFAULT_DATA: ProfileData = {
 };
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>(DEFAULT_DATA);
 
@@ -42,13 +44,11 @@ export default function ProfilePage() {
             onSave={handleSave}
           />
         ) : (
-          <ProfileDetailsCard
-            onEdit={() => setIsEditing(true)}
-          />
+          <ProfileDetailsCard onEdit={() => setIsEditing(true)} />
         )}
 
-        {/* Right card — payment history */}
-        <ProfilePaymentCard />
+        {/* Right card — payment history (navigates to /account/payment on click) */}
+        <ProfilePaymentCard onMakePayment={() => navigate("/account/payment")} />
 
       </div>
     </div>
