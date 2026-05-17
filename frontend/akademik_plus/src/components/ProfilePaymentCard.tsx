@@ -30,12 +30,12 @@ export default function ProfilePaymentCard() {
   const total = payments.reduce((sum, p) => sum + p.amount, 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-green-100 shadow-sm p-7 flex flex-col">
+    <div className="bg-white border border-green-100 shadow-sm p-7 flex flex-col">
 
       {/* Card header */}
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-semibold text-gray-800">Payment History</h2>
-        <button className="flex items-center gap-1.5 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors">
+        <button className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
           <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z"/>
           </svg>

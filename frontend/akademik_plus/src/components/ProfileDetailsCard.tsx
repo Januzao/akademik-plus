@@ -4,7 +4,7 @@ interface ProfileDetailsCardProps {
 
 export default function ProfileDetailsCard({ onEdit }: ProfileDetailsCardProps) {
   return (
-    <div className="bg-white rounded-2xl border border-green-100 shadow-sm p-7">
+    <div className="bg-white border border-green-100 shadow-sm p-7">
 
       <h2 className="text-lg font-semibold text-gray-800">Profile</h2>
       <p className="text-xs text-gray-400 mt-0.5 mb-5">Manage your account information</p>
@@ -98,7 +98,7 @@ export default function ProfileDetailsCard({ onEdit }: ProfileDetailsCardProps) 
 
       {/* Action buttons */}
       <div className="flex items-center justify-between">
-        <button className="px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors">
+        <button className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
           Request repair
         </button>
         <button

@@ -40,7 +40,7 @@ export default function ProfileEditCard({
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   return (
-    <div className="bg-white rounded-2xl border border-green-100 shadow-sm p-7">
+    <div className="bg-white border border-green-100 shadow-sm p-7">
 
       <h2 className="text-lg font-semibold text-gray-800">Profile</h2>
       <p className="text-xs text-gray-400 mt-0.5 mb-5">Manage your account information</p>
