@@ -1,8 +1,10 @@
 interface ProfileDetailsCardProps {
   onEdit: () => void;
+  onRequestRepair: () => void;
 }
 
-export default function ProfileDetailsCard({ onEdit }: ProfileDetailsCardProps) {
+
+export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileDetailsCardProps) {
   return (
     <div className="bg-white border border-green-100 shadow-sm p-7">
 
@@ -99,6 +101,7 @@ export default function ProfileDetailsCard({ onEdit }: ProfileDetailsCardProps) 
       {/* Action buttons */}
       <div className="flex items-center justify-between">
         <button
+          onClick={onRequestRepair}
           className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
           Request repair
@@ -110,7 +113,6 @@ export default function ProfileDetailsCard({ onEdit }: ProfileDetailsCardProps) 
           Edit
         </button>
       </div>
-
     </div>
   );
 }

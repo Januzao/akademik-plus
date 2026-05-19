@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import MainPage from './pages/MainPage'
 import ProfilePage from './pages/ProfilePage'
 import MakePaymentPage from './pages/MakePaymentPage'
+import RequestRepairPage from './pages/RepairPage'
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/" element={<MainPage />} />
         <Route path="/account" element={<ProfilePage />} />
         <Route path="/account/payment" element={<MakePaymentPage />} />
+        <Route path="/account/repair" element={<RequestRepairPage />} />
       </Route>
     </Routes>
   )

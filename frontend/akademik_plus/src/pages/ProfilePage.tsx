@@ -44,7 +44,10 @@ export default function ProfilePage() {
             onSave={handleSave}
           />
         ) : (
-          <ProfileDetailsCard onEdit={() => setIsEditing(true)} />
+          <ProfileDetailsCard 
+            onEdit={() => setIsEditing(true)} 
+            onRequestRepair={() => navigate("/account/repair")}
+          />
         )}
 
         {/* Right card — payment history (navigates to /account/payment on click) */}
