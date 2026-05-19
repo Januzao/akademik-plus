@@ -26,18 +26,6 @@ export default function RequestFixPage({ onCancel }: RequestRepairCardProps) {
 
 
   return (
-    <div className="bg-[#f0f4f0] py-8">
-      <div className="w-full max-w-3xl mx-auto">
-
-        {/* Back link */}
-        <button className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 mb-6 transition-colors">
-          <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
-          </svg>
-          Back to Profile
-        </button>
-
-        {/* Card — no rounded corners */}
         <div className="bg-white border border-green-100 shadow-sm p-8">
 
           {/* Header */}
@@ -176,9 +164,6 @@ export default function RequestFixPage({ onCancel }: RequestRepairCardProps) {
               Submit Request
             </button>
           </div>
-
         </div>
-      </div>
-    </div>
   );
 }
