@@ -1,3 +1,5 @@
+import type { RoomResponseDTO } from "../dto/RoomResponseDTO";
+
 // const API_BASE = import.meta.env?.VITE_API_BASE ?? "http://localhost:8080";
 const API_BASE = ""
 const ROOMS_URL = `${API_BASE}/api/rooms`;
@@ -10,33 +12,24 @@ const ROOMS_URL = `${API_BASE}/api/rooms`;
  * UI shape: { id, number, floor, type ('SHARED'|'PRIVATE'), capacity, occupancy }
  */
 
-// Vite dev proxy alternative (vite.config.js) so you can keep API_BASE = "":
-export default defineConfig({
-  server: { proxy: { "/api": "http://localhost:8080" } }
-});
-
-export function normalizeRoom(dto) {
-  const capacity =
-    dto.capacity ?? dto.maxCapacity ?? dto.totalBeds ?? dto.beds ?? 0;
-
+export function normalizeRoom(dto: RoomResponseDTO) {
   const occupancy =
-    dto.currentOccupancy ??
-    dto.occupancy ??
-    dto.occupiedCount ??
-    dto.occupiedBeds ??
-    (Array.isArray(dto.occupants) ? dto.occupants.length : 0);
+    dto.roomType ??
+    dto.occupancyStatus ??
+    dto.occupiedPlaces ??
+    dto.totalPlaces;
 
   return {
     id: dto.id,
-    number: String(dto.roomNumber ?? dto.number ?? dto.name ?? dto.id),
-    floor: Number(dto.floor ?? dto.floorNumber ?? dto.level ?? 0),
-    type: String(dto.type ?? dto.roomType ?? "").toUpperCase(),
-    capacity: Number(capacity),
+    number: String(dto.roomNumber ?? dto.id),
+    floor: Number(dto.floorNumber),
+    type: String(dto.roomType ?? "").toUpperCase(),
+    capacity: Number(dto.totalPlaces),
     occupancy: Number(occupancy),
   };
 }
 
-async function handle(res) {
+async function handle(res: Response) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`Request failed (${res.status}): ${text || res.statusText}`);
@@ -53,13 +46,13 @@ export async function fetchRooms() {
 }
 
 /** GET /api/rooms/{id} -> RoomController.getById() */
-export async function fetchRoom(id) {
+export async function fetchRoom(id: number | string) {
   const res = await fetch(`${ROOMS_URL}/${id}`);
   return normalizeRoom(await handle(res));
 }
 
 /** POST /api/rooms -> RoomController.create() (expects a RoomRequestDTO body) */
-export async function createRoom(roomRequestDTO) {
+export async function createRoom(roomRequestDTO: Partial<RoomResponseDTO>) {
   const res = await fetch(ROOMS_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -69,7 +62,7 @@ export async function createRoom(roomRequestDTO) {
 }
 
 /** PUT /api/rooms/{id} -> RoomController.update() */
-export async function updateRoom(id, roomRequestDTO) {
+export async function updateRoom(id: number | string, roomRequestDTO: Partial<RoomResponseDTO>) {
   const res = await fetch(`${ROOMS_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -79,7 +72,7 @@ export async function updateRoom(id, roomRequestDTO) {
 }
 
 /** DELETE /api/rooms/{id} -> RoomController.delete() */
-export async function deleteRoom(id) {
+export async function deleteRoom(id: number | string) {
   const res = await fetch(`${ROOMS_URL}/${id}`, { method: "DELETE" });
   return handle(res);
 }
