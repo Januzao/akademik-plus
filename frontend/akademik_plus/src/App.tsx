@@ -4,6 +4,7 @@ import MainPage from './pages/MainPage'
 import ProfilePage from './pages/ProfilePage'
 import MakePaymentPage from './pages/MakePaymentPage'
 import RequestRepairPage from './pages/RepairPage'
+import RoomsPage from './pages/RoomsPage'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/account" element={<ProfilePage />} />
         <Route path="/account/payment" element={<MakePaymentPage />} />
         <Route path="/account/repair" element={<RequestRepairPage />} />
+        <Route path="/admin/dashboard" element={<RoomsPage />} />
       </Route>
     </Routes>
   )
