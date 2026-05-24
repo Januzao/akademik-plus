@@ -5,6 +5,7 @@ import com.akademikplus.akademik_plus.dto.RoomResponseDTO;
 import com.akademikplus.akademik_plus.entity.Room;
 import com.akademikplus.akademik_plus.service.RoomService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +31,12 @@ public class RoomController {
     }
 
     @PostMapping
-    public ResponseEntity<RoomResponseDTO> create(@RequestBody RoomRequestDTO room) {
+    public ResponseEntity<RoomResponseDTO> create(@Valid @RequestBody RoomRequestDTO room) {
         return new ResponseEntity<>(roomService.create(room), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public RoomResponseDTO update(@PathVariable Long id, @RequestBody RoomRequestDTO room) {
+    public RoomResponseDTO update(@PathVariable Long id, @Valid @RequestBody RoomRequestDTO room) {
         return roomService.update(id, room);
     }
 
