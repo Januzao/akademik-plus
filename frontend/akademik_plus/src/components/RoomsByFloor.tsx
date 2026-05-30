@@ -51,7 +51,7 @@ export default function RoomsByFloor({ floorNumber, filters }: RoomsByFloorProps
   }
 
   return (
-    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 grid-cols-1 sm:grid-cols-4 lg:grid-cols-8">
       {filteredRooms.map((room) => (
         <RoomCard key={room.id} room={room} />
       ))}
