@@ -1,7 +1,7 @@
 import { useState } from "react";
 import RoomsByFloor from "../components/RoomsByFloor";
-import RoomFiltersBar from "../components/RoomFilters.tsx";
-import type { RoomFilters } from "../components/RoomFilters.tsx";
+import RoomFiltersBar from "../components/RoomFilters";
+import type { RoomFilters } from "../components/roomFiltersUtils";
 
 const floorCount = 3; // Later change to backend call
 
