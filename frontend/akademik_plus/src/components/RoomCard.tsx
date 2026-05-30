@@ -25,7 +25,7 @@ export default function RoomCard({ room, onClick }: RoomCardProps) {
     <button
       type="button"
       onClick={() => onClick?.(room)}
-      className={`group transform transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-lg motion-reduce:transform-none motion-reduce:transition-none flex flex-col justify-between rounded-xl border p-2.5 text-left transition-colors ${s.card}`}
+      className={`group transform transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-lg motion-reduce:transform-none motion-reduce:transition-none flex flex-col justify-between border p-2.5 text-left transition-colors ${s.card}`}
     >
       <div className="flex items-start justify-between gap-1">
         <span className={`text-sm font-semibold leading-tight ${s.text}`}>

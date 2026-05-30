@@ -84,7 +84,7 @@ export default function PersonMode({ search }: PersonModeProps) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
+      <div className="border border-gray-200 bg-white p-6 text-sm text-gray-500">
         Loading people...
       </div>
     );
@@ -92,7 +92,7 @@ export default function PersonMode({ search }: PersonModeProps) {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+      <div className="border border-red-200 bg-red-50 p-6 text-sm text-red-700">
         Error: {error}
       </div>
     );
@@ -101,7 +101,7 @@ export default function PersonMode({ search }: PersonModeProps) {
   return (
     <div className="space-y-4">
       {filteredPeople.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
+        <div className="border border-gray-200 bg-white p-6 text-sm text-gray-500">
           No people match the search.
         </div>
       ) : (
@@ -114,7 +114,7 @@ export default function PersonMode({ search }: PersonModeProps) {
             return (
               <div
                 key={person.id ?? `${person.firstName}-${person.lastName}`}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+                className="border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
