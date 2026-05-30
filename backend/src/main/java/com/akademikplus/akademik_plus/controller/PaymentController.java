@@ -5,6 +5,7 @@ import com.akademikplus.akademik_plus.dto.PaymentRequestDTO;
 import com.akademikplus.akademik_plus.dto.PaymentResponseDTO;
 import com.akademikplus.akademik_plus.entity.Payment;
 import com.akademikplus.akademik_plus.service.PaymentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
+@Tag(name = "Payments", description = "MaintenanceRequest management endpoints")
 public class PaymentController {
 
     private final PaymentService paymentService;

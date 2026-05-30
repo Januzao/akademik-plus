@@ -3,6 +3,7 @@ package com.akademikplus.akademik_plus.controller;
 import com.akademikplus.akademik_plus.dto.UserRequestDTO;
 import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(name = "Users", description = "User management endpoints")
 public class UserController {
     private final UserService userService;
 

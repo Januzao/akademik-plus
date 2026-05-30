@@ -60,6 +60,8 @@ public class User {
     @Column(name = "profile_photo")
     private String profilePhoto;
 
+    @Column(name = "balance", precision = 10, scale = 2)
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
@@ -68,6 +70,4 @@ public class User {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @Column(name = "balance", precision = 10, scale = 2)
-    private BigDecimal balance = BigDecimal.ZERO;
 }

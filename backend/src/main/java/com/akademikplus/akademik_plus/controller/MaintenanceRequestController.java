@@ -2,6 +2,7 @@ package com.akademikplus.akademik_plus.controller;
 
 import com.akademikplus.akademik_plus.entity.MaintenanceRequest;
 import com.akademikplus.akademik_plus.service.MaintenanceRequestService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/maintenence-requests")
 @RequiredArgsConstructor
+@Tag(name = "MaintenanceRequests", description = "MaintenanceRequest management endpoints")
 public class MaintenanceRequestController {
     private final MaintenanceRequestService maintenanceRequestService;
 
