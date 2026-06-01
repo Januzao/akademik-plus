@@ -51,6 +51,14 @@ public class MaintenanceRequestService {
         return mapper.toResponse(saved);
     }
 
+    public MaintenanceRequestRespDTO updateStatus(Long id, String status) {
+        MaintenanceRequest entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found with id: " + id));
+        entity.setStatus(status);
+        MaintenanceRequest saved = repository.save(entity);
+        return mapper.toResponse(saved);
+    }
+
     public void delete(Long id) {
         repository.deleteById(id);
     }

@@ -7,3 +7,10 @@ export interface RoomResponseDTO {
   totalPlaces?: number;
   floorNumber?: number;
 }
+
+export interface RoomRequestDTO {
+  roomNumber?: string;
+  roomType?: string;
+  totalPlaces?: number;
+  floorNumber?: number;
+}

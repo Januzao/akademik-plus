@@ -1,7 +1,6 @@
 import type { RoomResponseDTO } from "../dto/RoomResponseDTO";
 
-// const API_BASE = import.meta.env?.VITE_API_BASE ?? "http://localhost:8080";
-const API_BASE = ""
+const API_BASE = import.meta.env?.VITE_API_BASE ?? "";
 const ROOMS_URL = `${API_BASE}/api/rooms`;
 
 async function handle(res: Response) {
