@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { BellIcon } from '@heroicons/react/24/outline'
 import IvysHome from '../assets/IvysHome.png'
 
 const navigation = [
@@ -49,25 +48,16 @@ export default function Topbar() {
             </div>
           </div>
 
-          {/* Right: Bell + Profile */}
+          {/* Right: Profile */}
           <div className="flex items-center">
-            <button
-              type="button"
-              className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-            >
-              <span className="absolute -inset-1.5" />
-              <span className="sr-only">View notifications</span>
-              <BellIcon aria-hidden="true" className="size-6" />
-            </button>
-
-            <Menu as="div" className="relative ml-3">
+            <Menu as="div" className="relative">
               <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">Open user menu</span>
                 <img
                   alt=""
                   src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  className="size-8 rounded-full bg-green-800 outline -outline-offset-1 outline-white/10"
+                  className="size-11 rounded-full bg-green-800 outline -outline-offset-1 outline-white/10"
                 />
               </MenuButton>
 

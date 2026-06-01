@@ -6,6 +6,3 @@ body {
   background-color: #f3f4f6; /* light gray background to see the dark topbar */
 }
 
-html {
-  scrollbar-gutter: stable;
-}
