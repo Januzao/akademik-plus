@@ -16,7 +16,7 @@ export default function MaintenanceStats({ requests }: MaintenanceStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-3 divide-x divide-gray-200 rounded-lg border border-gray-200 bg-white">
+    <div className="grid grid-cols-3 divide-x divide-gray-200 border border-gray-200 bg-white">
       {items.map((item) => (
         <div key={item.label} className="flex flex-col items-center py-5">
           <span className="text-2xl font-bold text-gray-800">{item.count}</span>

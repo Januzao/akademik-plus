@@ -13,7 +13,7 @@ const PRIORITY_OPTIONS = ["All Priorities", "High", "Medium", "Low"];
 
 export default function MaintenanceFilters({ filters, onChange }: MaintenanceFiltersProps) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
+    <div className="border border-gray-200 bg-white p-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Status */}
         <div>
