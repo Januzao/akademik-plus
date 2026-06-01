@@ -37,6 +37,13 @@ public class MaintenanceRequestController {
             maintenanceRequestService.createRequest(dto, userId),
             HttpStatus.CREATED);
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<MaintenanceRequestRespDTO> updateStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        return ResponseEntity.ok(maintenanceRequestService.updateStatus(id, status));
+    }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
