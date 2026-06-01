@@ -1,5 +1,7 @@
 package com.akademikplus.akademik_plus.controller;
 
+import com.akademikplus.akademik_plus.dto.MaintenanceRequestReqDTO;
+import com.akademikplus.akademik_plus.dto.MaintenanceRequestRespDTO;
 import com.akademikplus.akademik_plus.entity.MaintenanceRequest;
 import com.akademikplus.akademik_plus.service.MaintenanceRequestService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,10 +30,14 @@ public class MaintenanceRequestController {
     }
 
     @PostMapping
-    public ResponseEntity<MaintenanceRequest> create(@RequestBody MaintenanceRequest request) {
-        return new ResponseEntity<>(maintenanceRequestService.create(request), HttpStatus.CREATED);
+    public ResponseEntity<MaintenanceRequestRespDTO> create(
+            @RequestBody MaintenanceRequestReqDTO dto,
+            @RequestParam Long userId) {
+        return new ResponseEntity<>(
+            maintenanceRequestService.createRequest(dto, userId),
+            HttpStatus.CREATED);
     }
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         maintenanceRequestService.delete(id);
