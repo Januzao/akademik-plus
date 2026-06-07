@@ -23,6 +23,8 @@ public class UserMapper {
 
         dto.setProfilePhoto(user.getProfilePhoto());
 
+        dto.setBalance(user.getBalance());
+
         if (user.getRoom() != null) {
             dto.setRoomId(user.getRoom().getId());
         }

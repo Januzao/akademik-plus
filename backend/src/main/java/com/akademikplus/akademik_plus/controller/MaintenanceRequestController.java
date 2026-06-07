@@ -2,7 +2,6 @@ package com.akademikplus.akademik_plus.controller;
 
 import com.akademikplus.akademik_plus.dto.MaintenanceRequestReqDTO;
 import com.akademikplus.akademik_plus.dto.MaintenanceRequestRespDTO;
-import com.akademikplus.akademik_plus.entity.MaintenanceRequest;
 import com.akademikplus.akademik_plus.service.MaintenanceRequestService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,19 +12,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/maintenence-requests")
+@RequestMapping("/api/maintenance-requests")
 @RequiredArgsConstructor
 @Tag(name = "MaintenanceRequests", description = "MaintenanceRequest management endpoints")
 public class MaintenanceRequestController {
     private final MaintenanceRequestService maintenanceRequestService;
 
     @GetMapping
-    public List<MaintenanceRequest> getAll() {
+    public List<MaintenanceRequestRespDTO> getAll() {
         return maintenanceRequestService.findAll();
     }
 
     @GetMapping("/{id}")
-    public MaintenanceRequest getById(@PathVariable Long id) {
+    public MaintenanceRequestRespDTO getById(@PathVariable Long id) {
         return maintenanceRequestService.findById(id);
     }
 

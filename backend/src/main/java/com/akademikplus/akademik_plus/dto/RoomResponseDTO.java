@@ -17,4 +17,5 @@ public class RoomResponseDTO {
     private Integer occupiedPlaces;
     private Integer totalPlaces;
     private Integer floorNumber;
+    private java.math.BigDecimal rentPrice;
 }

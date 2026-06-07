@@ -20,4 +20,5 @@ public class UserResponseDTO {
     private Boolean isActive;
     private String profilePhoto;
     private Long roomId;
+    private java.math.BigDecimal balance;
 }
