@@ -1,5 +1,6 @@
 package com.akademikplus.akademik_plus.dto;
 
+import com.akademikplus.akademik_plus.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -15,7 +16,7 @@ public class UserResponseDTO {
     private String disability;
     private String personalPreferences;
     private String phone;
-    private String role;
+    private Role role;
     private Boolean isActive;
     private String profilePhoto;
     private Long roomId;
