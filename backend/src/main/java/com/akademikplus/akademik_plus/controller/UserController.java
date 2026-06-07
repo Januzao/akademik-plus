@@ -4,6 +4,7 @@ import com.akademikplus.akademik_plus.dto.UserRequestDTO;
 import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,12 +30,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> create(@RequestBody UserRequestDTO user) {
+    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserRequestDTO user) {
         return new ResponseEntity<>(userService.create(user), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public UserResponseDTO update(@PathVariable Long id, @RequestBody UserRequestDTO user) {
+    public UserResponseDTO update(@PathVariable Long id, @Valid @RequestBody UserRequestDTO user) {
         return userService.update(id, user);
     }
 
