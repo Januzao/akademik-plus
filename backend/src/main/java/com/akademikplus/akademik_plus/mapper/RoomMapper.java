@@ -26,6 +26,7 @@ public class RoomMapper {
         room.setRoomType(dto.getRoomType());
         room.setTotalPlaces(dto.getTotalPlaces());
         room.setFloorNumber(dto.getFloorNumber());
+        room.setRentPrice(dto.getRentPrice());
         return room;
     }
 }

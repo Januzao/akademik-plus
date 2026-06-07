@@ -4,6 +4,7 @@ import com.akademikplus.akademik_plus.dto.MaintenanceRequestReqDTO;
 import com.akademikplus.akademik_plus.dto.MaintenanceRequestRespDTO;
 import com.akademikplus.akademik_plus.service.MaintenanceRequestService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class MaintenanceRequestController {
 
     @PostMapping
     public ResponseEntity<MaintenanceRequestRespDTO> create(
-            @RequestBody MaintenanceRequestReqDTO dto,
+            @Valid @RequestBody MaintenanceRequestReqDTO dto,
             @RequestParam Long userId) {
         return new ResponseEntity<>(
             maintenanceRequestService.createRequest(dto, userId),
