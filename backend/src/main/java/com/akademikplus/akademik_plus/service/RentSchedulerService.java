@@ -1,6 +1,7 @@
 package com.akademikplus.akademik_plus.service;
 
 import com.akademikplus.akademik_plus.entity.User;
+import com.akademikplus.akademik_plus.enums.Role;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,7 +26,7 @@ public class RentSchedulerService {
             if (user.getRoom() != null
                     && user.getRoom().getRentPrice() != null
                     && Boolean.TRUE.equals(user.getIsActive())
-                    && "TENANT".equals(user.getRole())) {
+                    && user.getRole() == Role.STUDENT) {
 
                 BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
                 BigDecimal roomPrice = user.getRoom().getRentPrice();

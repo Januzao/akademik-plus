@@ -23,13 +23,16 @@ public class MaintenanceRequestService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
-    public List<MaintenanceRequest> findAll() {
-        return repository.findAll();
+    public List<MaintenanceRequestRespDTO> findAll() {
+        return repository.findAll().stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 
-    public MaintenanceRequest findById(Long id) {
+    public MaintenanceRequestRespDTO findById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Maintenance request did not found with id: " + id));
+                .map(mapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Maintenance request not found with id: " + id));
     }
 
     public MaintenanceRequest create(MaintenanceRequest requests) {

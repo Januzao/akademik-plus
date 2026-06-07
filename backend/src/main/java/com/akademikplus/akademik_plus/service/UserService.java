@@ -31,12 +31,13 @@ public class UserService {
 
     public UserResponseDTO findById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Payment did not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         return userMapper.toResponse(user);
     }
 
     public UserResponseDTO create(UserRequestDTO userRequestDTO) {
         User user = userMapper.toEntity(userRequestDTO);
+        user.setPasswordHash(passwordEncoder.encode(userRequestDTO.getPassword()));
 
         if (userRequestDTO.getRoomId() != null) {
             Room room = roomRepository.findById(userRequestDTO.getRoomId())

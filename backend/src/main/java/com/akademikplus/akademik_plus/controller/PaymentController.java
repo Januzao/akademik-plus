@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
-@Tag(name = "Payments", description = "MaintenanceRequest management endpoints")
+@Tag(name = "Payments", description = "Payment management endpoints")
 public class PaymentController {
 
     private final PaymentService paymentService;
