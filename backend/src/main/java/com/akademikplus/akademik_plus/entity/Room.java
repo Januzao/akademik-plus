@@ -1,11 +1,7 @@
 package com.akademikplus.akademik_plus.entity;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
+import com.akademikplus.akademik_plus.enums.RoomType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,8 +23,9 @@ public class Room {
     @Column(name = "room_number", nullable = false)
     private String roomNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "room_type")
-    private String roomType;
+    private RoomType roomType;
 
     @Column(name = "occupancy_status")
     private String occupancyStatus;

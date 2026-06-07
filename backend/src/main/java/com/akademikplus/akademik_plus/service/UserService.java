@@ -8,6 +8,7 @@ import com.akademikplus.akademik_plus.mapper.UserMapper;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoomRepository roomRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponseDTO> findAll() {
         return userRepository.findAll()
@@ -58,7 +60,7 @@ public class UserService {
         user.setProfilePhoto(userRequestDTO.getProfilePhoto());
 
         if (userRequestDTO.getPassword() != null && !userRequestDTO.getPassword().isEmpty()) {
-            user.setPasswordHash(userRequestDTO.getPassword());
+            user.setPasswordHash(passwordEncoder.encode(userRequestDTO.getPassword()));
         }
 
         User updatedUser = userRepository.save(user);
