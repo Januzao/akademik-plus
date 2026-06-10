@@ -1,33 +1,37 @@
-import type { MaintenanceRequestReqDTO } from "../dto/MaintenanceRequestDTO";
+import type { MaintenanceRequestReqDTO, MaintenanceRequestRespDTO } from '../dto/MaintenanceRequestDTO';
+import { apiFetch, handleResponse } from './client';
 
-const API_BASE = import.meta.env?.VITE_API_BASE ?? "";
-const MAINTENANCE_URL = `${API_BASE}/api/maintenence-requests`;
+const MAINTENANCE_URL = '/api/maintenance-requests';
 
 export async function fetchMaintenanceRequests(): Promise<MaintenanceRequestReqDTO[]> {
-  const res = await fetch(MAINTENANCE_URL);
-  if (!res.ok) throw new Error(`Failed to fetch maintenance requests: ${res.status}`);
-  return res.json();
+  const res = await apiFetch(MAINTENANCE_URL);
+  return handleResponse<MaintenanceRequestReqDTO[]>(res).then(data => data ?? []);
 }
 
-export async function fetchMaintenanceRequestById(id: number): Promise<MaintenanceRequestReqDTO> {
-  const res = await fetch(`${MAINTENANCE_URL}/${id}`);
-  if (!res.ok) throw new Error(`Failed to fetch request #${id}: ${res.status}`);
-  return res.json();
+export async function fetchMaintenanceRequestById(id: number): Promise<MaintenanceRequestRespDTO> {
+  const res = await apiFetch(`${MAINTENANCE_URL}/${id}`);
+  return handleResponse<MaintenanceRequestRespDTO>(res);
 }
 
 export async function createMaintenanceRequest(
-  data: MaintenanceRequestReqDTO
-): Promise<MaintenanceRequestReqDTO> {
-  const res = await fetch(MAINTENANCE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+  data: MaintenanceRequestReqDTO,
+  userId: number
+): Promise<MaintenanceRequestRespDTO> {
+  const res = await apiFetch(`${MAINTENANCE_URL}?userId=${userId}`, {
+    method: 'POST',
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(`Failed to create request: ${res.status}`);
-  return res.json();
+  return handleResponse<MaintenanceRequestRespDTO>(res);
 }
 
-export async function deleteMaintenanceRequest(id: number): Promise<void> {
-  const res = await fetch(`${MAINTENANCE_URL}/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error(`Failed to delete request #${id}: ${res.status}`);
+export async function updateMaintenanceStatus(id: number, status: string): Promise<MaintenanceRequestRespDTO> {
+  const res = await apiFetch(`${MAINTENANCE_URL}/${id}/status?status=${encodeURIComponent(status)}`, {
+    method: 'PATCH',
+  });
+  return handleResponse<MaintenanceRequestRespDTO>(res);
+}
+
+export async function deleteMaintenanceRequest(id: number): Promise<null> {
+  const res = await apiFetch(`${MAINTENANCE_URL}/${id}`, { method: 'DELETE' });
+  return handleResponse<null>(res);
 }

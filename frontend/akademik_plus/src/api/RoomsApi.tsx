@@ -1,52 +1,33 @@
-import type { RoomResponseDTO } from "../dto/RoomResponseDTO";
+import type { RoomResponseDTO } from '../dto/RoomResponseDTO';
+import { apiFetch, handleResponse } from './client';
 
-const API_BASE = import.meta.env?.VITE_API_BASE ?? "";
-const ROOMS_URL = `${API_BASE}/api/rooms`;
-
-async function handle(res: Response) {
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Request failed (${res.status}): ${text || res.statusText}`);
-  }
-  if (res.status === 204) return null;
-  return res.json();
+export async function fetchRooms(): Promise<RoomResponseDTO[]> {
+  const res = await apiFetch('/api/rooms');
+  return handleResponse<RoomResponseDTO[]>(res).then(data => data ?? []);
 }
 
-/** GET /api/rooms  -> RoomController.getAll() */
-export async function fetchRooms() {
-  const res = await fetch(ROOMS_URL);
-  const data = await handle(res);
-  return data ?? []
+export async function fetchRoom(id: number | string): Promise<RoomResponseDTO> {
+  const res = await apiFetch(`/api/rooms/${id}`);
+  return handleResponse<RoomResponseDTO>(res);
 }
 
-/** GET /api/rooms/{id} -> RoomController.getById() */
-export async function fetchRoom(id: number | string) {
-  const res = await fetch(`${ROOMS_URL}/${id}`);
-  return await handle(res)
-}
-
-/** POST /api/rooms -> RoomController.create() (expects a RoomRequestDTO body) */
-export async function createRoom(roomRequestDTO: Partial<RoomResponseDTO>) {
-  const res = await fetch(ROOMS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(roomRequestDTO),
+export async function createRoom(body: Partial<RoomResponseDTO>): Promise<RoomResponseDTO> {
+  const res = await apiFetch('/api/rooms', {
+    method: 'POST',
+    body: JSON.stringify(body),
   });
-  return await handle(res)
+  return handleResponse<RoomResponseDTO>(res);
 }
 
-/** PUT /api/rooms/{id} -> RoomController.update() */
-export async function updateRoom(id: number | string, roomRequestDTO: Partial<RoomResponseDTO>) {
-  const res = await fetch(`${ROOMS_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(roomRequestDTO),
+export async function updateRoom(id: number | string, body: Partial<RoomResponseDTO>): Promise<RoomResponseDTO> {
+  const res = await apiFetch(`/api/rooms/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
   });
-  return await handle(res)
+  return handleResponse<RoomResponseDTO>(res);
 }
 
-/** DELETE /api/rooms/{id} -> RoomController.delete() */
-export async function deleteRoom(id: number | string) {
-  const res = await fetch(`${ROOMS_URL}/${id}`, { method: "DELETE" });
-  return handle(res);
+export async function deleteRoom(id: number | string): Promise<null> {
+  const res = await apiFetch(`/api/rooms/${id}`, { method: 'DELETE' });
+  return handleResponse<null>(res);
 }
