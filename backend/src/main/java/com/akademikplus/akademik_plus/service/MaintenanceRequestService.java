@@ -12,11 +12,13 @@ import com.akademikplus.akademik_plus.repository.MaintenanceRequestRepository;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MaintenanceRequestService {
@@ -49,14 +51,19 @@ public class MaintenanceRequestService {
         entity.setUser(user);
         entity.setRoom(room);
 
-        return mapper.toResponse(repository.save(entity));
+        MaintenanceRequest saved = repository.save(entity);
+        log.info("Maintenance request created id={}, userId={}, roomId={}, category={}", saved.getId(), currentUserId, dto.getRoomId(), dto.getCategory());
+        return mapper.toResponse(saved);
     }
 
     public MaintenanceRequestRespDTO updateStatus(Long id, MaintenanceStatus status) {
         MaintenanceRequest entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
+        MaintenanceStatus previous = entity.getStatus();
         entity.setStatus(status);
-        return mapper.toResponse(repository.save(entity));
+        MaintenanceRequest saved = repository.save(entity);
+        log.info("Maintenance request id={} status changed: {} -> {}", id, previous, status);
+        return mapper.toResponse(saved);
     }
 
     public void delete(Long id) {
@@ -64,5 +71,6 @@ public class MaintenanceRequestService {
             throw new ResourceNotFoundException("Maintenance request not found with id: " + id);
         }
         repository.deleteById(id);
+        log.info("Maintenance request deleted id={}", id);
     }
 }

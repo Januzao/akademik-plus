@@ -6,11 +6,13 @@ import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import com.akademikplus.akademik_plus.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -30,6 +32,7 @@ public class AuthService {
 
         userRepository.save(user);
 
+        log.info("New user registered: email={}", requestDTO.getEmail());
         String token = jwtService.generateToken(user);
         return new AuthResponseDTO(token);
     }
@@ -43,6 +46,7 @@ public class AuthService {
         User user = userRepository.findByEmail(requestDTO.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + requestDTO.getEmail()));
 
+        log.info("User logged in: email={}", requestDTO.getEmail());
         String token = jwtService.generateToken(user);
         return new AuthResponseDTO(token);
     }

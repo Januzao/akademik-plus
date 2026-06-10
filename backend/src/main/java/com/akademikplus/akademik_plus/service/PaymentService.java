@@ -15,6 +15,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -71,13 +73,17 @@ public class PaymentService {
                 BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
                 user.setBalance(currentBalance.add(amountToPay));
                 userRepository.save(user);
+
+                log.info("Payment completed for user id={}, amount={}, transactionId={}", user.getId(), amountToPay, charge.getId());
             } else {
                 payment.setStatus(PaymentStatus.FAILED);
+                log.warn("Payment not completed by Stripe for user id={}, amount={}", user.getId(), amountToPay);
                 throw new PaymentException("Payment was not completed by Stripe.");
             }
         } catch (StripeException e) {
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
+            log.error("Stripe error for user id={}: {}", user.getId(), e.getMessage());
             throw new PaymentException("Stripe error: " + e.getMessage());
         }
 
@@ -96,5 +102,6 @@ public class PaymentService {
             throw new ResourceNotFoundException("Payment not found with id: " + id);
         }
         paymentRepository.deleteById(id);
+        log.info("Payment deleted id={}", id);
     }
 }
