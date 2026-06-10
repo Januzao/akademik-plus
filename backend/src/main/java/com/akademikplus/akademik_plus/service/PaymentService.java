@@ -13,6 +13,7 @@ import com.akademikplus.akademik_plus.repository.PaymentRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import com.stripe.model.Refund;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,7 @@ public class PaymentService {
             chargeParams.put("amount", amountInCents);
             chargeParams.put("currency", "pln");
             chargeParams.put("source", dto.getStripeToken());
-            chargeParams.put("description", "Half/Full payment for: " + dto.getPaidFor());
+            chargeParams.put("description", "Payment for: " + dto.getPaidFor());
 
             Charge charge = Charge.create(chargeParams);
 
@@ -70,25 +72,61 @@ public class PaymentService {
                 payment.setStatus(PaymentStatus.COMPLETED);
                 payment.setTransactionId(charge.getId());
 
-                BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
-                user.setBalance(currentBalance.add(amountToPay));
+                BigDecimal current = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+                user.setBalance(current.add(amountToPay));
                 userRepository.save(user);
 
-                log.info("Payment completed for user id={}, amount={}, transactionId={}", user.getId(), amountToPay, charge.getId());
+                log.info("Payment completed for userId={}, amount={}, chargeId={}", user.getId(), amountToPay, charge.getId());
             } else {
                 payment.setStatus(PaymentStatus.FAILED);
-                log.warn("Payment not completed by Stripe for user id={}, amount={}", user.getId(), amountToPay);
+                log.warn("Payment not completed by Stripe for userId={}, amount={}", user.getId(), amountToPay);
                 throw new PaymentException("Payment was not completed by Stripe.");
             }
         } catch (StripeException e) {
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
-            log.error("Stripe error for user id={}: {}", user.getId(), e.getMessage());
+            log.error("Stripe error for userId={}: {}", user.getId(), e.getMessage());
             throw new PaymentException("Stripe error: " + e.getMessage());
         }
 
-        Payment savedPayment = paymentRepository.save(payment);
-        return paymentMapper.toResponse(savedPayment);
+        return paymentMapper.toResponse(paymentRepository.save(payment));
+    }
+
+    @Transactional
+    public PaymentResponseDTO refund(Long id) {
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found with id: " + id));
+
+        if (payment.getStatus() != PaymentStatus.COMPLETED) {
+            throw new ValidationException("Only completed payments can be refunded. Current status: " + payment.getStatus());
+        }
+        if (payment.getTransactionId() == null) {
+            throw new ValidationException("Payment has no Stripe transaction ID — cannot refund.");
+        }
+
+        try {
+            Map<String, Object> refundParams = new HashMap<>();
+            refundParams.put("charge", payment.getTransactionId());
+            Refund refund = Refund.create(refundParams);
+
+            payment.setStatus(PaymentStatus.REFUNDED);
+            payment.setRefundId(refund.getId());
+            payment.setRefundedAt(LocalDateTime.now());
+
+            User user = payment.getUser();
+            if (user != null) {
+                BigDecimal current = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+                user.setBalance(current.subtract(payment.getAmount()));
+                userRepository.save(user);
+            }
+
+            log.info("Payment refunded id={}, refundId={}", id, refund.getId());
+            return paymentMapper.toResponse(paymentRepository.save(payment));
+
+        } catch (StripeException e) {
+            log.error("Stripe refund error for paymentId={}: {}", id, e.getMessage());
+            throw new PaymentException("Stripe refund error: " + e.getMessage());
+        }
     }
 
     public PaymentResponseDTO findById(Long id) {

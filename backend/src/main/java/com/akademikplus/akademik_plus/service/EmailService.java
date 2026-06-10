@@ -17,6 +17,24 @@ public class EmailService {
     @Value("${spring.mail.from:noreply@akademik-plus.com}")
     private String fromAddress;
 
+    public void sendRentReminderEmail(String to, String messageText) {
+        if (mailSender == null) {
+            log.warn("Mail sender not configured. Rent reminder not sent to {}", to);
+            return;
+        }
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromAddress);
+            message.setTo(to);
+            message.setSubject("Akademik Plus — Upcoming Rent Charge");
+            message.setText(messageText);
+            mailSender.send(message);
+            log.info("Rent reminder sent to {}", to);
+        } catch (Exception e) {
+            log.error("Failed to send rent reminder to {}: {}", to, e.getMessage());
+        }
+    }
+
     public void sendPasswordResetEmail(String to, String resetToken) {
         if (mailSender == null) {
             log.warn("Mail sender not configured. Password reset token for {}: {}", to, resetToken);

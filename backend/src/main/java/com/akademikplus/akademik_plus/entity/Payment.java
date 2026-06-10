@@ -34,11 +34,17 @@ public class Payment {
     @Column(name = "transaction_id")
     private String transactionId;
 
+    @Column(name = "refund_id")
+    private String refundId;
+
     @Column(name = "paid_for")
     private String paidFor;
 
     @Column(name = "payment_date")
     private LocalDate paymentDate;
+
+    @Column(name = "refunded_at")
+    private LocalDateTime refundedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
