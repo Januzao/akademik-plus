@@ -1,6 +1,7 @@
 package com.akademikplus.akademik_plus.config;
 
 import com.akademikplus.akademik_plus.security.JwtAuthFilter;
+import com.akademikplus.akademik_plus.security.RateLimiterFilter;
 import com.akademikplus.akademik_plus.security.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private final RateLimiterFilter rateLimiterFilter;
     private final UserDetailServiceImpl userDetailService;
 
     @Bean
@@ -37,22 +39,34 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
-                        //admin
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // public auth endpoints
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/refresh",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password"
+                        ).permitAll()
+
+                        // Swagger
+                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+
+                        // admin only
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/rooms/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"/api/rooms/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/api/rooms/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/api/payments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/api/maintenance-requests/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH,"/api/maintenance-requests/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/rooms/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/rooms/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/payments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/maintenance-requests/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/maintenance-requests/**").hasRole("ADMIN")
 
-                        //admin and student
-                        .requestMatchers(HttpMethod.GET,"/api/rooms/**").hasAnyRole("ADMIN", "STUDENT")
-                        .requestMatchers(HttpMethod.GET,"/api/payments/**").hasAnyRole("ADMIN", "STUDENT")
-                        .requestMatchers(HttpMethod.POST,"/api/payments/**").hasAnyRole("ADMIN", "STUDENT")
-                        .requestMatchers(HttpMethod.GET,"/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
-                        .requestMatchers(HttpMethod.POST,"/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
+                        // admin and student
+                        .requestMatchers(HttpMethod.GET, "/api/rooms/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/payments/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/payments/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
+
                         .anyRequest().authenticated()
                 )
 
@@ -61,7 +75,7 @@ public class SecurityConfig {
                 )
 
                 .authenticationProvider(authenticationProvider())
-
+                .addFilterBefore(rateLimiterFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -87,7 +101,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
