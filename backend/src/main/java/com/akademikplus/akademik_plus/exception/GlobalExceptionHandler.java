@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -29,6 +30,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handlePayment(PaymentException ex) {
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(400, ex.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ErrorResponse> handleFileStorage(FileStorageException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(500, ex.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(new ErrorResponse(413, "File size exceeds the maximum allowed limit of 5 MB.", LocalDateTime.now()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -8,8 +8,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -35,8 +37,15 @@ public class MaintenanceRequestController {
             @Valid @RequestBody MaintenanceRequestReqDTO dto,
             @RequestParam Long userId) {
         return new ResponseEntity<>(
-            maintenanceRequestService.createRequest(dto, userId),
-            HttpStatus.CREATED);
+                maintenanceRequestService.createRequest(dto, userId),
+                HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MaintenanceRequestRespDTO> uploadPhoto(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(maintenanceRequestService.uploadPhoto(id, file));
     }
 
     @PatchMapping("/{id}/status")
@@ -45,7 +54,7 @@ public class MaintenanceRequestController {
             @RequestParam MaintenanceStatus status) {
         return ResponseEntity.ok(maintenanceRequestService.updateStatus(id, status));
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         maintenanceRequestService.delete(id);

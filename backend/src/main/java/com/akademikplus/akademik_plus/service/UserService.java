@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final RoomRepository roomRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileStorageService fileStorageService;
 
     public List<UserResponseDTO> findAll() {
         return userRepository.findAll()
@@ -72,11 +74,24 @@ public class UserService {
         return userMapper.toResponse(updated);
     }
 
+    public UserResponseDTO uploadPhoto(Long id, MultipartFile file) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        fileStorageService.delete(user.getProfilePhoto());
+        String url = fileStorageService.store(file, "users");
+        user.setProfilePhoto(url);
+
+        User saved = userRepository.save(user);
+        log.info("Profile photo updated for userId={}, url={}", id, url);
+        return userMapper.toResponse(saved);
+    }
+
     public void delete(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found with id: " + id);
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        fileStorageService.delete(user.getProfilePhoto());
+        userRepository.delete(user);
         log.info("User deleted id={}", id);
     }
 }
