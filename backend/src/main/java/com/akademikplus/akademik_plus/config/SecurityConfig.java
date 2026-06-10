@@ -48,8 +48,9 @@ public class SecurityConfig {
                                 "/api/auth/reset-password"
                         ).permitAll()
 
-                        // Swagger
+                        // Swagger & static uploads
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
 
                         // admin only
                         .requestMatchers(HttpMethod.POST, "/api/payments/*/refund").hasRole("ADMIN")

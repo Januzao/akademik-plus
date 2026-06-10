@@ -14,6 +14,7 @@ import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +27,7 @@ public class MaintenanceRequestService {
     private final MaintenanceRequestMapper mapper;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final FileStorageService fileStorageService;
 
     public List<MaintenanceRequestRespDTO> findAll() {
         return repository.findAll().stream()
@@ -56,6 +58,19 @@ public class MaintenanceRequestService {
         return mapper.toResponse(saved);
     }
 
+    public MaintenanceRequestRespDTO uploadPhoto(Long id, MultipartFile file) {
+        MaintenanceRequest entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
+
+        fileStorageService.delete(entity.getPhotoUrl());
+        String url = fileStorageService.store(file, "maintenance");
+        entity.setPhotoUrl(url);
+
+        MaintenanceRequest saved = repository.save(entity);
+        log.info("Photo uploaded for maintenanceRequestId={}, url={}", id, url);
+        return mapper.toResponse(saved);
+    }
+
     public MaintenanceRequestRespDTO updateStatus(Long id, MaintenanceStatus status) {
         MaintenanceRequest entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
@@ -67,10 +82,10 @@ public class MaintenanceRequestService {
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Maintenance request not found with id: " + id);
-        }
-        repository.deleteById(id);
+        MaintenanceRequest entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
+        fileStorageService.delete(entity.getPhotoUrl());
+        repository.delete(entity);
         log.info("Maintenance request deleted id={}", id);
     }
 }
