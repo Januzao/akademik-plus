@@ -1,5 +1,13 @@
 package com.akademikplus.akademik_plus.auth;
 
+import com.akademikplus.akademik_plus.exception.ErrorResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,24 +19,46 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Register, login, logout and password management")
 public class AuthController {
     private final AuthService authService;
 
+    @Operation(summary = "Register a new student account")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Registered successfully"),
+            @ApiResponse(responseCode = "400", description = "Email already registered or validation error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody AuthRequestDTO request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
+    @Operation(summary = "Login with email and password")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login successful, returns access and refresh tokens"),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody AuthRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @Operation(summary = "Refresh access token using a refresh token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "New access token returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired refresh token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
         return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
     }
 
+    @Operation(summary = "Logout — invalidates the current access token")
+    @ApiResponse(responseCode = "204", description = "Logged out successfully")
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
@@ -38,6 +68,13 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Change password for the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Current password is incorrect or validation error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/change-password")
     public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -46,12 +83,20 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Request a password reset link via email")
+    @ApiResponse(responseCode = "204", description = "Reset email sent if account exists")
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
         authService.forgotPassword(dto.getEmail());
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Reset password using the token received by email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid, expired, or already used token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
         authService.resetPassword(dto);
