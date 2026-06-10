@@ -1,9 +1,7 @@
 package com.akademikplus.akademik_plus.controller;
 
-
 import com.akademikplus.akademik_plus.dto.PaymentRequestDTO;
 import com.akademikplus.akademik_plus.dto.PaymentResponseDTO;
-import com.akademikplus.akademik_plus.entity.Payment;
 import com.akademikplus.akademik_plus.service.PaymentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @GetMapping
-    public List<PaymentResponseDTO> getAll(){
+    public List<PaymentResponseDTO> getAll() {
         return paymentService.findAll();
     }
 
@@ -33,8 +31,12 @@ public class PaymentController {
 
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> create(@RequestBody PaymentRequestDTO paymentRequestDTO) {
-        PaymentResponseDTO paymentResponseDTO = paymentService.createPayment(paymentRequestDTO);
-        return new ResponseEntity<>(paymentResponseDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(paymentService.createPayment(paymentRequestDTO), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/{id}/refund")
+    public ResponseEntity<PaymentResponseDTO> refund(@PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.refund(id));
     }
 
     @DeleteMapping("/{id}")

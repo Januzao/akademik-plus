@@ -14,17 +14,17 @@ public class PaymentMapper {
         dto.setPaymentDate(payment.getPaymentDate());
         dto.setPaidFor(payment.getPaidFor());
         dto.setStatus(payment.getStatus());
+        dto.setTransactionId(payment.getTransactionId());
+        dto.setRefundId(payment.getRefundId());
+        dto.setRefundedAt(payment.getRefundedAt());
 
         if (payment.getUser() != null) {
-           dto.setTenantId(payment.getUser().getId());
-           dto.setTenantName(payment.getUser().getFirstName() + " " +
-                   payment.getUser().getLastName());
-
-           if (payment.getUser().getRoom() != null) {
-               dto.setRoomNumber(payment.getUser().getRoom().getRoomNumber());
-           }
+            dto.setTenantId(payment.getUser().getId());
+            dto.setTenantName(payment.getUser().getFirstName() + " " + payment.getUser().getLastName());
+            if (payment.getUser().getRoom() != null) {
+                dto.setRoomNumber(payment.getUser().getRoom().getRoomNumber());
+            }
         }
-
         return dto;
     }
 
@@ -32,7 +32,6 @@ public class PaymentMapper {
         Payment payment = new Payment();
         payment.setPaidFor(dto.getPaidFor());
         payment.setAmount(dto.getAmount());
-        payment.setTransactionId(dto.getStripeToken());
         return payment;
     }
 }
