@@ -4,6 +4,10 @@ import com.akademikplus.akademik_plus.dto.PaymentRequestDTO;
 import com.akademikplus.akademik_plus.dto.PaymentResponseDTO;
 import com.akademikplus.akademik_plus.entity.Payment;
 import com.akademikplus.akademik_plus.entity.User;
+import com.akademikplus.akademik_plus.enums.PaymentStatus;
+import com.akademikplus.akademik_plus.exception.PaymentException;
+import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
+import com.akademikplus.akademik_plus.exception.ValidationException;
 import com.akademikplus.akademik_plus.mapper.PaymentMapper;
 import com.akademikplus.akademik_plus.repository.PaymentRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
@@ -25,7 +29,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final PaymentMapper paymentMapper;
-    
+
     public List<PaymentResponseDTO> findAll() {
         return paymentRepository.findAll()
                 .stream()
@@ -35,21 +39,19 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponseDTO createPayment(PaymentRequestDTO dto) {
-        Payment payment = paymentMapper.toEntity(dto);
-
-        payment.setPaymentDate(LocalDate.now());
-        User user = userRepository.findById(dto.getUserId()).orElseThrow(
-                () -> new RuntimeException("User not found")
-        );
-        payment.setUser(user);
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
 
         BigDecimal amountToPay = dto.getAmount();
-
         if (amountToPay == null || amountToPay.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Amount must be positive and greater than 0.");
+            throw new ValidationException("Amount must be positive and greater than 0.");
         }
 
+        Payment payment = paymentMapper.toEntity(dto);
+        payment.setPaymentDate(LocalDate.now());
+        payment.setUser(user);
         payment.setAmount(amountToPay);
+        payment.setStatus(PaymentStatus.PENDING);
 
         try {
             int amountInCents = amountToPay.multiply(new BigDecimal(100)).intValue();
@@ -63,32 +65,36 @@ public class PaymentService {
             Charge charge = Charge.create(chargeParams);
 
             if (charge.getPaid()) {
-                payment.setStatus("Payment completed");
+                payment.setStatus(PaymentStatus.COMPLETED);
                 payment.setTransactionId(charge.getId());
-
 
                 BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
                 user.setBalance(currentBalance.add(amountToPay));
                 userRepository.save(user);
             } else {
-                payment.setStatus("Failed");
+                payment.setStatus(PaymentStatus.FAILED);
+                throw new PaymentException("Payment was not completed by Stripe.");
             }
         } catch (StripeException e) {
-            payment.setStatus("Failed");
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+            throw new PaymentException("Stripe error: " + e.getMessage());
         }
 
         Payment savedPayment = paymentRepository.save(payment);
         return paymentMapper.toResponse(savedPayment);
     }
-    
+
     public PaymentResponseDTO findById(Long id) {
         Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Payment not found by id: " + id));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found with id: " + id));
         return paymentMapper.toResponse(payment);
     }
 
     public void delete(Long id) {
+        if (!paymentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Payment not found with id: " + id);
+        }
         paymentRepository.deleteById(id);
     }
 }

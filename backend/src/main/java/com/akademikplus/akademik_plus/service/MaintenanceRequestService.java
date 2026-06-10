@@ -5,6 +5,8 @@ import com.akademikplus.akademik_plus.dto.MaintenanceRequestRespDTO;
 import com.akademikplus.akademik_plus.entity.MaintenanceRequest;
 import com.akademikplus.akademik_plus.entity.Room;
 import com.akademikplus.akademik_plus.entity.User;
+import com.akademikplus.akademik_plus.enums.MaintenanceStatus;
+import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.mapper.MaintenanceRequestMapper;
 import com.akademikplus.akademik_plus.repository.MaintenanceRequestRepository;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
@@ -32,37 +34,35 @@ public class MaintenanceRequestService {
     public MaintenanceRequestRespDTO findById(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("Maintenance request not found with id: " + id));
-    }
-
-    public MaintenanceRequest create(MaintenanceRequest requests) {
-        return repository.save(requests);
+                .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
     }
 
     public MaintenanceRequestRespDTO createRequest(MaintenanceRequestReqDTO dto, Long currentUserId) {
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + currentUserId));
+        Room room = roomRepository.findById(dto.getRoomId())
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with id: " + dto.getRoomId()));
+
         MaintenanceRequest entity = mapper.toEntity(dto);
-
         entity.setRequestDate(LocalDate.now());
-        entity.setStatus("Pending");
-
-        User user = userRepository.findById(currentUserId).orElseThrow();
-        Room room = roomRepository.findById(dto.getRoomId()).orElseThrow();
+        entity.setStatus(MaintenanceStatus.PENDING);
         entity.setUser(user);
         entity.setRoom(room);
 
-        MaintenanceRequest saved = repository.save(entity);
-        return mapper.toResponse(saved);
+        return mapper.toResponse(repository.save(entity));
     }
 
-    public MaintenanceRequestRespDTO updateStatus(Long id, String status) {
+    public MaintenanceRequestRespDTO updateStatus(Long id, MaintenanceStatus status) {
         MaintenanceRequest entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
         entity.setStatus(status);
-        MaintenanceRequest saved = repository.save(entity);
-        return mapper.toResponse(saved);
+        return mapper.toResponse(repository.save(entity));
     }
 
     public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Maintenance request not found with id: " + id);
+        }
         repository.deleteById(id);
     }
 }

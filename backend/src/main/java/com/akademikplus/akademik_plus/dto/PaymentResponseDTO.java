@@ -1,5 +1,6 @@
 package com.akademikplus.akademik_plus.dto;
 
+import com.akademikplus.akademik_plus.enums.PaymentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -13,7 +14,7 @@ public class PaymentResponseDTO {
     private BigDecimal amount;
     private String paidFor;
     private LocalDate paymentDate;
-    private String status;
+    private PaymentStatus status;
     private String transactionId;
 
 
