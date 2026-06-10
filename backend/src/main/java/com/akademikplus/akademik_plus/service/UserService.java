@@ -9,11 +9,13 @@ import com.akademikplus.akademik_plus.mapper.UserMapper;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -45,7 +47,9 @@ public class UserService {
             user.setRoom(room);
         }
 
-        return userMapper.toResponse(userRepository.save(user));
+        User saved = userRepository.save(user);
+        log.info("User created id={}, email={}, role={}", saved.getId(), saved.getEmail(), saved.getRole());
+        return userMapper.toResponse(saved);
     }
 
     public UserResponseDTO update(Long id, UserRequestDTO userRequestDTO) {
@@ -63,7 +67,9 @@ public class UserService {
             user.setPasswordHash(passwordEncoder.encode(userRequestDTO.getPassword()));
         }
 
-        return userMapper.toResponse(userRepository.save(user));
+        User updated = userRepository.save(user);
+        log.info("User updated id={}, email={}", updated.getId(), updated.getEmail());
+        return userMapper.toResponse(updated);
     }
 
     public void delete(Long id) {
@@ -71,5 +77,6 @@ public class UserService {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+        log.info("User deleted id={}", id);
     }
 }

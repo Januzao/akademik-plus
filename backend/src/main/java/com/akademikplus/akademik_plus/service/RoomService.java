@@ -9,10 +9,12 @@ import com.akademikplus.akademik_plus.exception.ValidationException;
 import com.akademikplus.akademik_plus.mapper.RoomMapper;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoomService {
@@ -36,7 +38,9 @@ public class RoomService {
         Room room = roomMapper.toEntity(roomRequestDTO);
         room.setOccupiedPlaces(0);
         room.setOccupancyStatus(OccupancyStatus.VACANT);
-        return roomMapper.toResponse(roomRepository.save(room));
+        Room saved = roomRepository.save(room);
+        log.info("Room created id={}, number={}", saved.getId(), saved.getRoomNumber());
+        return roomMapper.toResponse(saved);
     }
 
     public RoomResponseDTO update(Long id, RoomRequestDTO roomRequestDTO) {
@@ -61,7 +65,9 @@ public class RoomService {
                 : OccupancyStatus.VACANT
         );
 
-        return roomMapper.toResponse(roomRepository.save(room));
+        Room updated = roomRepository.save(room);
+        log.info("Room updated id={}, number={}", updated.getId(), updated.getRoomNumber());
+        return roomMapper.toResponse(updated);
     }
 
     public void delete(Long id) {
@@ -69,5 +75,6 @@ public class RoomService {
             throw new ResourceNotFoundException("Room not found with id: " + id);
         }
         roomRepository.deleteById(id);
+        log.info("Room deleted id={}", id);
     }
 }
