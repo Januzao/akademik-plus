@@ -17,8 +17,13 @@ public class JwtService {
     private final JwtConfig jwtConfig;
 
     public String generateToken(UserDetails userDetails) {
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority().replace("ROLE_", ""))
+                .orElse("STUDENT");
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtConfig.getJwtExpiration()))
                 .signWith(jwtConfig.getSecretKey())
