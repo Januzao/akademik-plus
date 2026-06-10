@@ -2,6 +2,7 @@ package com.akademikplus.akademik_plus.controller;
 
 import com.akademikplus.akademik_plus.dto.MaintenanceRequestReqDTO;
 import com.akademikplus.akademik_plus.dto.MaintenanceRequestRespDTO;
+import com.akademikplus.akademik_plus.enums.MaintenanceStatus;
 import com.akademikplus.akademik_plus.service.MaintenanceRequestService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,7 +42,7 @@ public class MaintenanceRequestController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<MaintenanceRequestRespDTO> updateStatus(
             @PathVariable Long id,
-            @RequestParam String status) {
+            @RequestParam MaintenanceStatus status) {
         return ResponseEntity.ok(maintenanceRequestService.updateStatus(id, status));
     }
     

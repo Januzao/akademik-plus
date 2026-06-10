@@ -2,6 +2,7 @@ package com.akademikplus.akademik_plus.auth;
 
 import com.akademikplus.akademik_plus.entity.User;
 import com.akademikplus.akademik_plus.enums.Role;
+import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import com.akademikplus.akademik_plus.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,8 @@ public class AuthService {
                 requestDTO.getPassword()
         ));
 
-        User user = userRepository.findByEmail(requestDTO.getEmail()).orElseThrow(
-                () -> new RuntimeException("User not found."));
+        User user = userRepository.findByEmail(requestDTO.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + requestDTO.getEmail()));
 
         String token = jwtService.generateToken(user);
         return new AuthResponseDTO(token);

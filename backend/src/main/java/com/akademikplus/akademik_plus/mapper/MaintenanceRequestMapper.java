@@ -12,6 +12,7 @@ public class MaintenanceRequestMapper {
         dto.setId(mr.getId());
         dto.setCategory(mr.getCategory());
         dto.setPriority(mr.getPriority());
+        dto.setStatus(mr.getStatus());
         dto.setDescription(mr.getDescription());
         dto.setRequestDate(mr.getRequestDate());
         dto.setPhotoUrl(mr.getPhotoUrl());

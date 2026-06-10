@@ -4,6 +4,7 @@ import com.akademikplus.akademik_plus.dto.UserRequestDTO;
 import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.entity.Room;
 import com.akademikplus.akademik_plus.entity.User;
+import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.mapper.UserMapper;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
@@ -12,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +26,12 @@ public class UserService {
         return userRepository.findAll()
                 .stream()
                 .map(userMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public UserResponseDTO findById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         return userMapper.toResponse(user);
     }
 
@@ -41,18 +41,17 @@ public class UserService {
 
         if (userRequestDTO.getRoomId() != null) {
             Room room = roomRepository.findById(userRequestDTO.getRoomId())
-                    .orElseThrow(() -> new RuntimeException("Room not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Room not found with id: " + userRequestDTO.getRoomId()));
             user.setRoom(room);
         }
 
-        User savedUser = userRepository.save(user);
-
-        return userMapper.toResponse(savedUser);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     public UserResponseDTO update(Long id, UserRequestDTO userRequestDTO) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
         user.setFirstName(userRequestDTO.getFirstName());
         user.setLastName(userRequestDTO.getLastName());
         user.setEmail(userRequestDTO.getEmail());
@@ -64,12 +63,13 @@ public class UserService {
             user.setPasswordHash(passwordEncoder.encode(userRequestDTO.getPassword()));
         }
 
-        User updatedUser = userRepository.save(user);
-
-        return userMapper.toResponse(updatedUser);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     public void delete(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("User not found with id: " + id);
+        }
         userRepository.deleteById(id);
     }
 }

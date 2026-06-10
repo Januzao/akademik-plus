@@ -1,13 +1,17 @@
 package com.akademikplus.akademik_plus.entity;
 
+import com.akademikplus.akademik_plus.enums.OccupancyStatus;
 import com.akademikplus.akademik_plus.enums.RoomType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "rooms")
@@ -27,8 +31,9 @@ public class Room {
     @Column(name = "room_type")
     private RoomType roomType;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "occupancy_status")
-    private String occupancyStatus;
+    private OccupancyStatus occupancyStatus;
 
     @Column(name = "occupied_places")
     private Integer occupiedPlaces;
@@ -41,4 +46,12 @@ public class Room {
 
     @Column(name = "rent_price")
     private BigDecimal rentPrice;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }
