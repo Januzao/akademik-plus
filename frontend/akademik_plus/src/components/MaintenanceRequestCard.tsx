@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { MaintenanceRequestReqDTO } from "../dto/MaintenanceRequestDTO";
-
-const API_BASE = "http://localhost:8080/api/maintenence-requests";
+import { updateMaintenanceStatus } from "../api/MaintenanceApi";
 
 interface MaintenanceRequestCardProps {
   request: MaintenanceRequestReqDTO;
@@ -17,9 +16,17 @@ const PRIORITY_STYLES: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  Pending: "border-gray-200 bg-gray-50 text-gray-600",
-  "In Progress": "border-blue-200 bg-blue-50 text-blue-700",
-  Completed: "border-green-200 bg-green-50 text-green-700",
+  PENDING:     "border-gray-200 bg-gray-50 text-gray-600",
+  IN_PROGRESS: "border-blue-200 bg-blue-50 text-blue-700",
+  RESOLVED:    "border-green-200 bg-green-50 text-green-700",
+  CANCELLED:   "border-red-200 bg-red-50 text-red-600",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING:     "Pending",
+  IN_PROGRESS: "In Progress",
+  RESOLVED:    "Resolved",
+  CANCELLED:   "Cancelled",
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -48,7 +55,7 @@ export default function MaintenanceRequestCard({
   onStatusChange,
   onViewDetails,
 }: MaintenanceRequestCardProps) {
-  const [localStatus, setLocalStatus] = useState(request.status ?? "Pending");
+  const [localStatus, setLocalStatus] = useState(request.status ?? "PENDING");
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -56,26 +63,15 @@ export default function MaintenanceRequestCard({
   /* ── status change → PATCH to backend ── */
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const next = e.target.value;
-    if (next !== "Pending" && next !== "In Progress" && next !== "Completed") return;
-
     const prevStatus = localStatus;
     setLocalStatus(next);
     setError(null);
     setIsUpdating(true);
 
     try {
-      const res = await fetch(
-        `${API_BASE}/${request.id}/status?status=${encodeURIComponent(next)}`,
-        { method: "PATCH" }
-      );
-
-      if (!res.ok) {
-        throw new Error(`Server responded with ${res.status}`);
-      }
-
+      await updateMaintenanceStatus(request.id!, next);
       onStatusChange?.(request.id!, next);
     } catch (err) {
-      // rollback on failure
       setLocalStatus(prevStatus);
       setError("Failed to update status");
       console.error("Status update error:", err);
@@ -109,9 +105,9 @@ export default function MaintenanceRequestCard({
         </span>
 
         <span
-          className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[localStatus]}`}
+          className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[localStatus] ?? STATUS_STYLES.PENDING}`}
         >
-          <span className="text-[9px]">⊙</span> {localStatus}
+          <span className="text-[9px]">⊙</span> {STATUS_LABELS[localStatus] ?? localStatus}
         </span>
       </div>
 
@@ -157,9 +153,10 @@ export default function MaintenanceRequestCard({
               isUpdating ? "cursor-not-allowed opacity-50" : ""
             }`}
           >
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
+            <option value="PENDING">Pending</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="RESOLVED">Resolved</option>
+            <option value="CANCELLED">Cancelled</option>
           </select>
           {isUpdating && (
             <span className="ml-2 text-xs text-gray-400">Saving…</span>
@@ -187,7 +184,7 @@ export default function MaintenanceRequestCard({
             <DetailRow label="Room" value={request.roomNumber ?? request.roomId} />
             <DetailRow label="Category" value={`${icon} ${category}`} />
             <DetailRow label="Priority" value={priority} />
-            <DetailRow label="Status" value={localStatus} />
+            <DetailRow label="Status" value={STATUS_LABELS[localStatus] ?? localStatus} />
             <DetailRow label="Date" value={formatDate(request.requestDate)} />
             <DetailRow label="Tenant" value={request.tenantName} />
             <DetailRow label="Phone" value={request.tenantPhone} />
