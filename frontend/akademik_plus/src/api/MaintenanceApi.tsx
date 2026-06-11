@@ -3,6 +3,11 @@ import { apiFetch, handleResponse } from './client';
 
 const MAINTENANCE_URL = '/api/maintenance-requests';
 
+export async function fetchMyMaintenanceRequests(): Promise<MaintenanceRequestRespDTO[]> {
+  const res = await apiFetch(`${MAINTENANCE_URL}/my`);
+  return handleResponse<MaintenanceRequestRespDTO[]>(res).then(data => data ?? []);
+}
+
 export async function fetchMaintenanceRequests(): Promise<MaintenanceRequestReqDTO[]> {
   const res = await apiFetch(MAINTENANCE_URL);
   return handleResponse<MaintenanceRequestReqDTO[]>(res).then(data => data ?? []);
@@ -27,6 +32,18 @@ export async function createMaintenanceRequest(
 export async function updateMaintenanceStatus(id: number, status: string): Promise<MaintenanceRequestRespDTO> {
   const res = await apiFetch(`${MAINTENANCE_URL}/${id}/status?status=${encodeURIComponent(status)}`, {
     method: 'PATCH',
+  });
+  return handleResponse<MaintenanceRequestRespDTO>(res);
+}
+
+export async function uploadMaintenancePhoto(id: number, file: File): Promise<MaintenanceRequestRespDTO> {
+  const form = new FormData();
+  form.append('file', file);
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${MAINTENANCE_URL}/${id}/photo`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
   });
   return handleResponse<MaintenanceRequestRespDTO>(res);
 }

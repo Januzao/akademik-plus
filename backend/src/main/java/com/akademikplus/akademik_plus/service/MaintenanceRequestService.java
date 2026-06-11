@@ -81,6 +81,15 @@ public class MaintenanceRequestService {
         return mapper.toResponse(saved);
     }
 
+    public List<MaintenanceRequestRespDTO> findByCurrentUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+        return repository.findByUserIdOrderByRequestDateDesc(user.getId())
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
     public void delete(Long id) {
         MaintenanceRequest entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
