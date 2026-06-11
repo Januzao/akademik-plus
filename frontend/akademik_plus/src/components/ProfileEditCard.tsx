@@ -52,12 +52,12 @@ export default function ProfileEditCard({
         </div>
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-semibold text-gray-800">Profile Photo</span>
-          <span className="text-xs text-gray-400">Update your profile picture</span>
+          <span className="text-xs text-gray-400">Update your photo</span>
           <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mt-1 transition-colors">
             <svg className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
             </svg>
-            Upload Photo
+            Upload photo
           </button>
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function ProfileEditCard({
           onClick={() => onSave(form)}
           className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
-          Request Changes
+          Save Changes
         </button>
       </div>
 

@@ -43,7 +43,7 @@ export default function ProfilePaymentCard({ onMakePayment }: ProfilePaymentCard
           onClick={onMakePayment}
           className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
           >
-          Make a Payment
+          Make Payment
         </button>
       </div>
 
@@ -78,7 +78,7 @@ export default function ProfilePaymentCard({ onMakePayment }: ProfilePaymentCard
       {/* Payment list */}
       <div className="flex-1 flex flex-col overflow-y-auto">
         {payments.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-8">No payments recorded for {year}.</p>
+          <p className="text-sm text-gray-400 text-center py-8">No payments found for {year}.</p>
         ) : (
           payments.map((p, i) => (
             <div key={i}>
@@ -88,11 +88,11 @@ export default function ProfilePaymentCard({ onMakePayment }: ProfilePaymentCard
                   <span className="text-xs text-gray-400">{p.date}</span>
                 </div>
                 <p className="text-xs text-gray-500 mb-2">
-                  Paid for: <span className="font-semibold text-gray-700">{p.paidFor}</span>
+                  Payment for: <span className="font-semibold text-gray-700">{p.paidFor}</span>
                 </p>
                 <div className="flex items-center gap-1.5">
                   <span className="size-2 rounded-full bg-green-400 shrink-0" />
-                  <span className="text-xs text-gray-400">Payment Completed</span>
+                  <span className="text-xs text-gray-400">Payment completed</span>
                 </div>
               </div>
               {i < payments.length - 1 && <div className="h-px bg-gray-100 w-full" />}
@@ -104,7 +104,7 @@ export default function ProfilePaymentCard({ onMakePayment }: ProfilePaymentCard
       {/* Footer total */}
       <div className="h-px bg-green-100 w-full mt-4 mb-4" />
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">Total Paid in {year}</span>
+        <span className="text-xs text-gray-400">Total paid for {year}</span>
         <span className="text-sm font-bold text-gray-800">${total.toLocaleString()}.00</span>
       </div>
 

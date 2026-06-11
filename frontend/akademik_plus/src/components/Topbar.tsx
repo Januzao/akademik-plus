@@ -78,7 +78,7 @@ export default function Topbar() {
                   <div className="px-4 py-2 border-b border-white/10">
                     <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                     <p className="text-xs font-medium text-green-400 mt-0.5">
-                      {user?.role === 'ADMIN' ? 'Адміністратор' : 'Студент'}
+                      {user?.role === 'ADMIN' ? 'Administrator' : 'Student'}
                     </p>
                   </div>
 
@@ -87,7 +87,7 @@ export default function Topbar() {
                       onClick={() => navigate('/account')}
                       className="block w-full px-4 py-2 text-left text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
                     >
-                      Мій профіль
+                      My Profile
                     </button>
                   </MenuItem>
                   <MenuItem>
@@ -95,7 +95,7 @@ export default function Topbar() {
                       onClick={handleLogout}
                       className="block w-full px-4 py-2 text-left text-sm text-red-400 data-focus:bg-white/5 data-focus:outline-hidden"
                     >
-                      Вийти
+                      Log out
                     </button>
                   </MenuItem>
                 </MenuItems>
@@ -105,7 +105,7 @@ export default function Topbar() {
                 onClick={() => navigate('/login')}
                 className="rounded-md bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 transition-colors"
               >
-                Увійти
+                Log in
               </button>
             )}
           </div>
