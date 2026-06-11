@@ -32,10 +32,30 @@ function decodeToken(token: string): CurrentUser | null {
   }
 }
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (!payload.exp) return false;
+    return Date.now() / 1000 > payload.exp;
+  } catch {
+    return true;
+  }
+}
+
+function loadStoredToken(): string | null {
+  const t = localStorage.getItem('token');
+  if (!t || isTokenExpired(t)) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    return null;
+  }
+  return t;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(loadStoredToken);
   const [user, setUser] = useState<CurrentUser | null>(() => {
-    const t = localStorage.getItem('token');
+    const t = loadStoredToken();
     return t ? decodeToken(t) : null;
   });
 
