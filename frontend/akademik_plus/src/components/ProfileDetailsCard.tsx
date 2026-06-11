@@ -104,7 +104,7 @@ export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileD
           onClick={onRequestRepair}
           className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
-          Request repair
+          Submit Repair Request
         </button>
         <button
           onClick={onEdit}
