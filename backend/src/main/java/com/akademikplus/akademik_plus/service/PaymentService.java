@@ -135,6 +135,15 @@ public class PaymentService {
         return paymentMapper.toResponse(payment);
     }
 
+    public List<PaymentResponseDTO> findByCurrentUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+        return paymentRepository.findByUserIdOrderByPaymentDateDesc(user.getId())
+                .stream()
+                .map(paymentMapper::toResponse)
+                .toList();
+    }
+
     public void delete(Long id) {
         if (!paymentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Payment not found with id: " + id);
