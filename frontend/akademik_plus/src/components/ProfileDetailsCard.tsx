@@ -4,6 +4,7 @@ interface ProfileDetailsCardProps {
   phone: string;
   email: string;
   roomNumber: string | null;
+  isActive?: boolean;
   onEdit: () => void;
   onRequestRepair: () => void;
 }
@@ -14,6 +15,7 @@ export default function ProfileDetailsCard({
   phone,
   email,
   roomNumber,
+  isActive,
   onEdit,
   onRequestRepair,
 }: ProfileDetailsCardProps) {
@@ -30,9 +32,21 @@ export default function ProfileDetailsCard({
         <div className="size-16 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-semibold text-lg shrink-0">
           {initials}
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           <span className="text-sm font-semibold text-gray-800">Profile Photo</span>
           <span className="text-xs text-gray-400">{firstName} {lastName}</span>
+          {isActive !== undefined && (
+            <span
+              className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                isActive
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-red-50 text-red-600"
+              }`}
+            >
+              <span className={`size-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-red-400"}`} />
+              {isActive ? "Active" : "Disabled"}
+            </span>
+          )}
         </div>
       </div>
 

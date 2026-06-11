@@ -1,9 +1,11 @@
 package com.akademikplus.akademik_plus.service;
 
+import com.akademikplus.akademik_plus.dto.AdminUserPatchDTO;
 import com.akademikplus.akademik_plus.dto.UserRequestDTO;
 import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.entity.Room;
 import com.akademikplus.akademik_plus.entity.User;
+import com.akademikplus.akademik_plus.enums.OccupancyStatus;
 import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.mapper.UserMapper;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
@@ -84,6 +86,48 @@ public class UserService {
 
         User saved = userRepository.save(user);
         log.info("Profile photo updated for userId={}, url={}", id, url);
+        return userMapper.toResponse(saved);
+    }
+
+    public UserResponseDTO patch(Long id, AdminUserPatchDTO dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        user.setIsActive(dto.getIsActive());
+
+        Room oldRoom = user.getRoom();
+        Long newRoomId = dto.getRoomId();
+
+        boolean roomChanged = (oldRoom == null && newRoomId != null)
+                || (oldRoom != null && !oldRoom.getId().equals(newRoomId));
+
+        if (roomChanged) {
+            if (oldRoom != null) {
+                int count = Math.max(0, (oldRoom.getOccupiedPlaces() == null ? 0 : oldRoom.getOccupiedPlaces()) - 1);
+                oldRoom.setOccupiedPlaces(count);
+                oldRoom.setOccupancyStatus(
+                        count >= (oldRoom.getTotalPlaces() == null ? 0 : oldRoom.getTotalPlaces())
+                                ? OccupancyStatus.FULL : OccupancyStatus.VACANT);
+                roomRepository.save(oldRoom);
+            }
+
+            if (newRoomId != null) {
+                Room newRoom = roomRepository.findById(newRoomId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Room not found with id: " + newRoomId));
+                int count = (newRoom.getOccupiedPlaces() == null ? 0 : newRoom.getOccupiedPlaces()) + 1;
+                newRoom.setOccupiedPlaces(count);
+                newRoom.setOccupancyStatus(
+                        count >= (newRoom.getTotalPlaces() == null ? 0 : newRoom.getTotalPlaces())
+                                ? OccupancyStatus.FULL : OccupancyStatus.VACANT);
+                roomRepository.save(newRoom);
+                user.setRoom(newRoom);
+            } else {
+                user.setRoom(null);
+            }
+        }
+
+        User saved = userRepository.save(user);
+        log.info("User patched id={}, isActive={}, roomId={}", id, dto.getIsActive(), newRoomId);
         return userMapper.toResponse(saved);
     }
 

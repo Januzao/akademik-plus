@@ -1,5 +1,6 @@
 package com.akademikplus.akademik_plus.controller;
 
+import com.akademikplus.akademik_plus.dto.AdminUserPatchDTO;
 import com.akademikplus.akademik_plus.dto.UserRequestDTO;
 import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.exception.ErrorResponse;
@@ -88,6 +89,19 @@ public class UserController {
             @Parameter(description = "Image file (JPEG / PNG / WEBP / GIF, max 5 MB)")
             @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(userService.uploadPhoto(id, file));
+    }
+
+    @Operation(summary = "Patch user — room assignment and active status only")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User patched"),
+            @ApiResponse(responseCode = "404", description = "User or room not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PatchMapping("/{id}")
+    public UserResponseDTO patch(
+            @Parameter(description = "User ID") @PathVariable Long id,
+            @Valid @RequestBody AdminUserPatchDTO dto) {
+        return userService.patch(id, dto);
     }
 
     @Operation(summary = "Delete user")

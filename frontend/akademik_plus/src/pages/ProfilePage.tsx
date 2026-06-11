@@ -14,6 +14,7 @@ interface UserProfile {
   email: string;
   phone: string;
   roomNumber: string | null;
+  isActive: boolean;
 }
 
 export default function ProfilePage() {
@@ -84,6 +85,7 @@ export default function ProfilePage() {
             phone={user.phone ?? ""}
             email={user.email}
             roomNumber={user.roomNumber}
+            isActive={user.isActive}
             onEdit={() => setIsEditing(true)}
             onRequestRepair={() => navigate("/account/repair")}
           />
