@@ -1,11 +1,13 @@
 package com.akademikplus.akademik_plus.auth;
 
+import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.entity.PasswordResetToken;
 import com.akademikplus.akademik_plus.entity.RefreshToken;
 import com.akademikplus.akademik_plus.entity.User;
 import com.akademikplus.akademik_plus.enums.Role;
 import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.exception.ValidationException;
+import com.akademikplus.akademik_plus.mapper.UserMapper;
 import com.akademikplus.akademik_plus.repository.PasswordResetTokenRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import com.akademikplus.akademik_plus.security.JwtService;
@@ -34,8 +36,9 @@ public class AuthService {
     private final TokenBlacklistService tokenBlacklistService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final UserMapper userMapper;
 
-    public AuthResponseDTO register(AuthRequestDTO requestDTO) {
+    public AuthResponseDTO register(RegisterRequestDTO requestDTO) {
         if (userRepository.findByEmail(requestDTO.getEmail()).isPresent()) {
             throw new ValidationException("Email is already registered: " + requestDTO.getEmail());
         }
@@ -43,8 +46,9 @@ public class AuthService {
         user.setEmail(requestDTO.getEmail());
         user.setPasswordHash(passwordEncoder.encode(requestDTO.getPassword()));
         user.setRole(Role.STUDENT);
-        user.setFirstName("");
-        user.setLastName("");
+        user.setFirstName(requestDTO.getFirstName());
+        user.setLastName(requestDTO.getLastName());
+        user.setPhone(requestDTO.getPhone());
         user.setIsActive(true);
         userRepository.save(user);
 
@@ -52,6 +56,23 @@ public class AuthService {
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.create(user);
         return new AuthResponseDTO(accessToken, refreshToken.getToken());
+    }
+
+    public UserResponseDTO getMe(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+        return userMapper.toResponse(user);
+    }
+
+    public UserResponseDTO updateProfile(String email, ProfileUpdateDTO dto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPhone(dto.getPhone());
+        userRepository.save(user);
+        log.info("Profile updated for user: email={}", email);
+        return userMapper.toResponse(user);
     }
 
     public AuthResponseDTO login(AuthRequestDTO requestDTO) {

@@ -1,35 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileDetailsCard from "../components/ProfileDetailsCard";
-import ProfileEditCard from "../components/ProfileEditCard";
+import ProfileEditCard, { type ProfileFormData } from "../components/ProfileEditCard";
 import ProfilePaymentCard from "../components/ProfilePaymentCard";
+import { apiFetch, handleResponse } from "../api/client";
 
-interface ProfileData {
+interface UserProfile {
+  id: number;
   firstName: string;
   lastName: string;
-  roomNumber: string;
-  phoneNumber: string;
   email: string;
+  phone: string;
+  roomNumber: string | null;
 }
-
-const DEFAULT_DATA: ProfileData = {
-  firstName: "John",
-  lastName: "Smith",
-  roomNumber: "305",
-  phoneNumber: "+48 (234) 567-890",
-  email: "john.smith@example.com",
-};
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState<ProfileData>(DEFAULT_DATA);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = (data: ProfileData) => {
-    setProfileData(data);
-    setIsEditing(false);
+  useEffect(() => {
+    apiFetch("/api/auth/me")
+      .then(res => handleResponse<UserProfile>(res))
+      .then(data => setUser(data))
+      .catch(() => {});
+  }, []);
+
+  const handleSave = async (data: ProfileFormData) => {
+    setSaving(true);
+    try {
+      const res = await apiFetch("/api/auth/profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+        }),
+      });
+      const updated = await handleResponse<UserProfile>(res);
+      setUser(updated);
+      setIsEditing(false);
+    } catch {
+      // keep editing open on error
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="bg-[#f0f4f0] py-8 flex justify-center">
+        <span className="text-gray-400 text-sm">Loading profile...</span>
+      </div>
+    );
+  }
+
+  const formData: ProfileFormData = {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone ?? "",
+    email: user.email,
   };
 
   return (
@@ -39,18 +72,24 @@ export default function ProfilePage() {
         {/* Left card — toggles between details and edit */}
         {isEditing ? (
           <ProfileEditCard
-            initialData={profileData}
+            initialData={formData}
             onCancel={() => setIsEditing(false)}
             onSave={handleSave}
+            saving={saving}
           />
         ) : (
-          <ProfileDetailsCard 
-            onEdit={() => setIsEditing(true)} 
+          <ProfileDetailsCard
+            firstName={user.firstName}
+            lastName={user.lastName}
+            phone={user.phone ?? ""}
+            email={user.email}
+            roomNumber={user.roomNumber}
+            onEdit={() => setIsEditing(true)}
             onRequestRepair={() => navigate("/account/repair")}
           />
         )}
 
-        {/* Right card — payment history (navigates to /account/payment on click) */}
+        {/* Right card — payment history */}
         <ProfilePaymentCard onMakePayment={() => navigate("/account/payment")} />
 
       </div>

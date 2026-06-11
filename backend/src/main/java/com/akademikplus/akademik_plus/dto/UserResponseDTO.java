@@ -49,6 +49,9 @@ public class UserResponseDTO {
     @Schema(description = "ID of assigned room", example = "3")
     private Long roomId;
 
+    @Schema(description = "Number of assigned room", example = "305")
+    private String roomNumber;
+
     @Schema(description = "Current account balance in PLN", example = "350.00")
     private BigDecimal balance;
 }

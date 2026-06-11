@@ -1,10 +1,24 @@
 interface ProfileDetailsCardProps {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  roomNumber: string | null;
   onEdit: () => void;
   onRequestRepair: () => void;
 }
 
+export default function ProfileDetailsCard({
+  firstName,
+  lastName,
+  phone,
+  email,
+  roomNumber,
+  onEdit,
+  onRequestRepair,
+}: ProfileDetailsCardProps) {
+  const initials = `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase() || '?';
 
-export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileDetailsCardProps) {
   return (
     <div className="bg-white border border-green-100 shadow-sm p-7">
 
@@ -14,11 +28,11 @@ export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileD
       {/* Profile photo */}
       <div className="flex items-center gap-4 mb-6">
         <div className="size-16 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-semibold text-lg shrink-0">
-          JS
+          {initials}
         </div>
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-semibold text-gray-800">Profile Photo</span>
-          <span className="text-xs text-gray-400">John Smith</span>
+          <span className="text-xs text-gray-400">{firstName} {lastName}</span>
         </div>
       </div>
 
@@ -37,7 +51,7 @@ export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileD
             First Name
           </span>
           <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm text-gray-700">
-            John
+            {firstName || '—'}
           </div>
         </div>
 
@@ -50,7 +64,7 @@ export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileD
             Last Name
           </span>
           <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm text-gray-700">
-            Smith
+            {lastName || '—'}
           </div>
         </div>
 
@@ -64,7 +78,7 @@ export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileD
             Room Number
           </span>
           <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm text-gray-700">
-            305
+            {roomNumber ?? <span className="text-gray-400 italic">Not assigned</span>}
           </div>
         </div>
 
@@ -77,7 +91,7 @@ export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileD
             Phone Number
           </span>
           <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm text-gray-700">
-            +48 (234) 567-890
+            {phone || '—'}
           </div>
         </div>
 
@@ -90,7 +104,7 @@ export default function ProfileDetailsCard({ onEdit, onRequestRepair }: ProfileD
             Email Address
           </span>
           <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm text-gray-700">
-            john.smith@example.com
+            {email || '—'}
           </div>
         </div>
 

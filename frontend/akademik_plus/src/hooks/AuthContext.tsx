@@ -14,7 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -87,11 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     storeSession(data.token, data.refreshToken);
   };
 
-  const register = async (email: string, password: string) => {
+  const register = async (email: string, password: string, firstName: string, lastName: string, phone: string) => {
     const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, firstName, lastName, phone }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));

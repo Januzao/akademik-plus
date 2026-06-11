@@ -47,17 +47,23 @@ class AuthControllerTest {
         return new AuthResponseDTO("access-token-123", "refresh-token-456");
     }
 
+    private RegisterRequestDTO buildRegisterRequest(String email) {
+        RegisterRequestDTO req = new RegisterRequestDTO();
+        req.setEmail(email);
+        req.setPassword("password123");
+        req.setFirstName("Jan");
+        req.setLastName("Kowalski");
+        req.setPhone("+48 500 100 200");
+        return req;
+    }
+
     @Test
     void register_returnsOk_whenValid() throws Exception {
-        AuthRequestDTO req = new AuthRequestDTO();
-        req.setEmail("new@example.com");
-        req.setPassword("password123");
-
         when(authService.register(any())).thenReturn(buildAuthResponse());
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                        .content(objectMapper.writeValueAsString(buildRegisterRequest("new@example.com"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("access-token-123"))
                 .andExpect(jsonPath("$.refreshToken").value("refresh-token-456"));
@@ -65,9 +71,7 @@ class AuthControllerTest {
 
     @Test
     void register_returnsBadRequest_whenEmailInvalid() throws Exception {
-        AuthRequestDTO req = new AuthRequestDTO();
-        req.setEmail("not-an-email");
-        req.setPassword("password123");
+        RegisterRequestDTO req = buildRegisterRequest("not-an-email");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,16 +81,12 @@ class AuthControllerTest {
 
     @Test
     void register_returnsBadRequest_whenEmailAlreadyExists() throws Exception {
-        AuthRequestDTO req = new AuthRequestDTO();
-        req.setEmail("existing@example.com");
-        req.setPassword("password123");
-
         when(authService.register(any()))
                 .thenThrow(new ValidationException("Email is already registered: existing@example.com"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                        .content(objectMapper.writeValueAsString(buildRegisterRequest("existing@example.com"))))
                 .andExpect(status().isBadRequest());
     }
 

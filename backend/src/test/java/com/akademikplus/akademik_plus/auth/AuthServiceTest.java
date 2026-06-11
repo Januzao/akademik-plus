@@ -6,6 +6,7 @@ import com.akademikplus.akademik_plus.entity.User;
 import com.akademikplus.akademik_plus.enums.Role;
 import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.exception.ValidationException;
+import com.akademikplus.akademik_plus.mapper.UserMapper;
 import com.akademikplus.akademik_plus.repository.PasswordResetTokenRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import com.akademikplus.akademik_plus.security.JwtService;
@@ -42,6 +43,7 @@ class AuthServiceTest {
     @Mock private TokenBlacklistService tokenBlacklistService;
     @Mock private PasswordResetTokenRepository passwordResetTokenRepository;
     @Mock private EmailService emailService;
+    @Mock private UserMapper userMapper;
 
     @InjectMocks
     private AuthService authService;
@@ -58,9 +60,12 @@ class AuthServiceTest {
 
     @Test
     void register_createsUserAndReturnsTokens() {
-        AuthRequestDTO dto = new AuthRequestDTO();
+        RegisterRequestDTO dto = new RegisterRequestDTO();
         dto.setEmail("new@example.com");
         dto.setPassword("password123");
+        dto.setFirstName("Jan");
+        dto.setLastName("Kowalski");
+        dto.setPhone("+48 500 100 200");
 
         when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("password123")).thenReturn("hashed");
@@ -77,9 +82,11 @@ class AuthServiceTest {
 
     @Test
     void register_throwsValidation_whenEmailAlreadyRegistered() {
-        AuthRequestDTO dto = new AuthRequestDTO();
+        RegisterRequestDTO dto = new RegisterRequestDTO();
         dto.setEmail("existing@example.com");
         dto.setPassword("password123");
+        dto.setFirstName("Jan");
+        dto.setLastName("Kowalski");
 
         when(userRepository.findByEmail("existing@example.com"))
                 .thenReturn(Optional.of(buildUser(1L, "existing@example.com")));

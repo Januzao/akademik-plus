@@ -2,40 +2,31 @@
 
 import { useState } from "react";
 
-interface ProfileData {
+export interface ProfileFormData {
   firstName: string;
   lastName: string;
-  roomNumber: string;
-  phoneNumber: string;
+  phone: string;
   email: string;
 }
 
 interface ProfileEditCardProps {
-  initialData?: ProfileData;
+  initialData: ProfileFormData;
   onCancel: () => void;
-  onSave: (data: ProfileData) => void;
+  onSave: (data: ProfileFormData) => void;
+  saving?: boolean;
 }
 
-const DEFAULT_DATA: ProfileData = {
-  firstName: "John",
-  lastName: "Smith",
-  roomNumber: "305",
-  phoneNumber: "+48 (234) 567-890",
-  email: "john.smith@example.com",
-};
-
-
-
 export default function ProfileEditCard({
-  initialData = DEFAULT_DATA,
+  initialData,
   onCancel,
   onSave,
+  saving = false,
 }: ProfileEditCardProps) {
   const inputClassName = "bg-green-100 border border-green-500 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-green-200";
 
-  const [form, setForm] = useState<ProfileData>(initialData);
+  const [form, setForm] = useState<ProfileFormData>(initialData);
 
-  const set = (field: keyof ProfileData) =>
+  const set = (field: keyof ProfileFormData) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
@@ -48,7 +39,7 @@ export default function ProfileEditCard({
       {/* Profile photo */}
       <div className="flex items-center gap-4 mb-6">
         <div className="size-16 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-semibold text-lg shrink-0">
-          {form.firstName[0]}{form.lastName[0]}
+          {(form.firstName?.[0] ?? '').toUpperCase()}{(form.lastName?.[0] ?? '').toUpperCase()}
         </div>
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-semibold text-gray-800">Profile Photo</span>
@@ -100,25 +91,8 @@ export default function ProfileEditCard({
           />
         </div>
 
-        {/* Room Number */}
-        <div className="flex flex-col gap-1">
-          <label className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-            <svg className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
-            </svg>
-            Room Number
-          </label>
-          <input
-            type="text"
-            value={form.roomNumber}
-            onChange={set("roomNumber")}
-            className={inputClassName}
-          />
-        </div>
-
         {/* Phone Number */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 col-span-2">
           <label className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
             <svg className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/>
@@ -126,14 +100,14 @@ export default function ProfileEditCard({
             Phone Number
           </label>
           <input
-            type="text"
-            value={form.phoneNumber}
-            onChange={set("phoneNumber")}
+            type="tel"
+            value={form.phone}
+            onChange={set("phone")}
             className={inputClassName}
           />
         </div>
 
-        {/* Email Address */}
+        {/* Email Address — read-only */}
         <div className="flex flex-col gap-1 col-span-2">
           <label className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
             <svg className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -144,8 +118,8 @@ export default function ProfileEditCard({
           <input
             type="email"
             value={form.email}
-            onChange={set("email")}
-            className={inputClassName}
+            readOnly
+            className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
           />
         </div>
 
@@ -157,15 +131,17 @@ export default function ProfileEditCard({
       <div className="flex items-center justify-end gap-3">
         <button
           onClick={onCancel}
-          className="px-4 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+          disabled={saving}
+          className="px-4 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={() => onSave(form)}
-          className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+          disabled={saving}
+          className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
         >
-          Save Changes
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
