@@ -4,10 +4,12 @@ import com.akademikplus.akademik_plus.dto.AdminUserPatchDTO;
 import com.akademikplus.akademik_plus.dto.UserRequestDTO;
 import com.akademikplus.akademik_plus.dto.UserResponseDTO;
 import com.akademikplus.akademik_plus.entity.Room;
+import com.akademikplus.akademik_plus.entity.RoomHistory;
 import com.akademikplus.akademik_plus.entity.User;
 import com.akademikplus.akademik_plus.enums.OccupancyStatus;
 import com.akademikplus.akademik_plus.exception.ResourceNotFoundException;
 import com.akademikplus.akademik_plus.mapper.UserMapper;
+import com.akademikplus.akademik_plus.repository.RoomHistoryRepository;
 import com.akademikplus.akademik_plus.repository.RoomRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoomRepository roomRepository;
+    private final RoomHistoryRepository roomHistoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileStorageService fileStorageService;
 
@@ -103,12 +107,20 @@ public class UserService {
 
         if (roomChanged) {
             if (oldRoom != null) {
+                // decrement old room occupancy
                 int count = Math.max(0, (oldRoom.getOccupiedPlaces() == null ? 0 : oldRoom.getOccupiedPlaces()) - 1);
                 oldRoom.setOccupiedPlaces(count);
                 oldRoom.setOccupancyStatus(
                         count >= (oldRoom.getTotalPlaces() == null ? 0 : oldRoom.getTotalPlaces())
                                 ? OccupancyStatus.FULL : OccupancyStatus.VACANT);
                 roomRepository.save(oldRoom);
+
+                // close the open history record for old room
+                roomHistoryRepository.findTopByUserIdAndCheckOutIsNullOrderByCheckInDesc(user.getId())
+                        .ifPresent(h -> {
+                            h.setCheckOut(LocalDate.now());
+                            roomHistoryRepository.save(h);
+                        });
             }
 
             if (newRoomId != null) {
@@ -121,6 +133,16 @@ public class UserService {
                                 ? OccupancyStatus.FULL : OccupancyStatus.VACANT);
                 roomRepository.save(newRoom);
                 user.setRoom(newRoom);
+
+                // open a new history record for new room
+                RoomHistory history = new RoomHistory();
+                history.setUser(user);
+                history.setRoomNumber(newRoom.getRoomNumber());
+                history.setFloorNumber(newRoom.getFloorNumber());
+                history.setRoomType(newRoom.getRoomType());
+                history.setRentPrice(newRoom.getRentPrice());
+                history.setCheckIn(LocalDate.now());
+                roomHistoryRepository.save(history);
             } else {
                 user.setRoom(null);
             }
