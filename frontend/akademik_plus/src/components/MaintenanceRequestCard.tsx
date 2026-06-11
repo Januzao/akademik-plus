@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { MaintenanceRequestReqDTO } from "../dto/MaintenanceRequestDTO";
 import { updateMaintenanceStatus } from "../api/MaintenanceApi";
+import { API_BASE } from "../api/client";
 
 interface MaintenanceRequestCardProps {
   request: MaintenanceRequestReqDTO;
@@ -122,6 +123,16 @@ export default function MaintenanceRequestCard({
       {/* Row 3 — description */}
       <p className="mt-2 text-sm text-gray-700">{request.description}</p>
 
+      {/* Row 3b — photo thumbnail */}
+      {request.photoUrl && (
+        <img
+          src={`${API_BASE}${request.photoUrl}`}
+          alt="Maintenance issue"
+          className="mt-2 max-h-36 rounded-md border border-gray-200 object-cover"
+          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+        />
+      )}
+
       {/* Row 4 — tenant info */}
       {(request.tenantName || request.tenantPhone) && (
         <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-gray-500">
@@ -201,12 +212,10 @@ export default function MaintenanceRequestCard({
             <div className="mt-3">
               <span className="text-xs font-medium text-gray-400">Photo</span>
               <img
-                src={request.photoUrl}
+                src={`${API_BASE}${request.photoUrl}`}
                 alt="Maintenance issue"
-                className="mt-1 max-h-48 rounded-md border border-gray-200 object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
+                className="mt-1 max-h-48 w-full rounded-md border border-gray-200 object-cover"
+                onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             </div>
           )}
