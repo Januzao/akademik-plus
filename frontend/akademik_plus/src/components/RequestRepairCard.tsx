@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch, handleResponse } from "../api/client";
-import { createMaintenanceRequest } from "../api/MaintenanceApi";
+import { createMaintenanceRequest, uploadMaintenancePhoto } from "../api/MaintenanceApi";
 import { fetchRooms } from "../api/RoomsApi";
 import type { RoomResponseDTO } from "../dto/RoomResponseDTO";
 
@@ -25,6 +25,8 @@ export default function RequestRepairCard({ onCancel, onSubmitted }: RequestRepa
   const [category, setCategory] = useState("");
   const [priority, setPriority] = useState("");
   const [description, setDescription] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -63,10 +65,13 @@ export default function RequestRepairCard({ onCancel, onSubmitted }: RequestRepa
 
     setLoading(true);
     try {
-      await createMaintenanceRequest(
+      const created = await createMaintenanceRequest(
         { roomId: effectiveRoomId as number, category: category as never, priority: priority as never, description },
         user.id
       );
+      if (photoFile && created.id) {
+        await uploadMaintenancePhoto(created.id, photoFile);
+      }
       setSuccess(true);
       setTimeout(() => onSubmitted?.() ?? onCancel(), 1500);
     } catch (err) {
@@ -170,6 +175,47 @@ export default function RequestRepairCard({ onCancel, onSubmitted }: RequestRepa
             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
           </svg>
         </div>
+      </div>
+
+      {/* Upload Photo */}
+      <div className="flex flex-col gap-1.5 mb-5">
+        <label className="flex items-center gap-1.5 text-sm text-gray-800 font-medium">
+          <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+          </svg>
+          Photo (optional)
+        </label>
+        <label className="cursor-pointer">
+          <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2.5 text-sm flex items-center gap-3 hover:bg-green-100 transition-colors">
+            <span className="px-2.5 py-1 bg-white border border-gray-200 rounded text-xs font-medium text-gray-700 shrink-0">
+              Choose File
+            </span>
+            <span className="text-gray-500 truncate">
+              {photoFile ? photoFile.name : "No file chosen"}
+            </span>
+          </div>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={e => {
+              const file = e.target.files?.[0] ?? null;
+              setPhotoFile(file);
+              setPhotoPreview(file ? URL.createObjectURL(file) : null);
+            }}
+          />
+        </label>
+        {photoPreview && (
+          <div className="relative w-fit">
+            <img src={photoPreview} alt="Preview" className="max-h-40 rounded-lg border border-green-100 object-cover" />
+            <button
+              type="button"
+              onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+              className="absolute -top-2 -right-2 size-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center hover:bg-red-600"
+            >✕</button>
+          </div>
+        )}
+        <p className="text-xs text-gray-400">JPEG, PNG, WEBP or GIF — max 5 MB</p>
       </div>
 
       {/* Description */}

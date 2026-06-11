@@ -5,7 +5,10 @@ import { useNavigate } from "react-router-dom";
 import ProfileDetailsCard from "../components/ProfileDetailsCard";
 import ProfileEditCard, { type ProfileFormData } from "../components/ProfileEditCard";
 import ProfilePaymentCard from "../components/ProfilePaymentCard";
+import ProfileHousingHistoryCard from "../components/ProfileHousingHistoryCard";
+import ProfileMaintenanceCard from "../components/ProfileMaintenanceCard";
 import { apiFetch, handleResponse } from "../api/client";
+import { useAuth } from "../hooks/AuthContext";
 
 interface UserProfile {
   id: number;
@@ -15,10 +18,14 @@ interface UserProfile {
   phone: string;
   roomNumber: string | null;
   isActive: boolean;
+  balance: number | null;
+  monthlyRent: number | null;
+  profilePhoto: string | null;
 }
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { updateProfilePhoto } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [saving, setSaving] = useState(false);
@@ -70,29 +77,43 @@ export default function ProfilePage() {
     <div className="bg-[#f0f4f0] py-8">
       <div className="grid grid-cols-2 gap-5 w-full max-w-7xl mx-auto">
 
-        {/* Left card — toggles between details and edit */}
-        {isEditing ? (
-          <ProfileEditCard
-            initialData={formData}
-            onCancel={() => setIsEditing(false)}
-            onSave={handleSave}
-            saving={saving}
-          />
-        ) : (
-          <ProfileDetailsCard
-            firstName={user.firstName}
-            lastName={user.lastName}
-            phone={user.phone ?? ""}
-            email={user.email}
-            roomNumber={user.roomNumber}
-            isActive={user.isActive}
-            onEdit={() => setIsEditing(true)}
-            onRequestRepair={() => navigate("/account/repair")}
-          />
-        )}
+        {/* Left column */}
+        <div className="flex flex-col gap-5">
+          {isEditing ? (
+            <ProfileEditCard
+              initialData={formData}
+              onCancel={() => setIsEditing(false)}
+              onSave={handleSave}
+              saving={saving}
+            />
+          ) : (
+            <ProfileDetailsCard
+              firstName={user.firstName}
+              lastName={user.lastName}
+              phone={user.phone ?? ""}
+              email={user.email}
+              roomNumber={user.roomNumber}
+              isActive={user.isActive}
+              profilePhoto={user.profilePhoto}
+              monthlyRent={user.monthlyRent}
+              onEdit={() => setIsEditing(true)}
+              onRequestRepair={() => navigate("/account/repair")}
+              onPhotoUpdated={(url) => {
+                setUser(u => u ? { ...u, profilePhoto: url } : u);
+                updateProfilePhoto(url);
+              }}
+            />
+          )}
 
-        {/* Right card — payment history */}
-        <ProfilePaymentCard onMakePayment={() => navigate("/account/payment")} />
+          <ProfileHousingHistoryCard />
+          <ProfileMaintenanceCard />
+        </div>
+
+        {/* Right column — payment history */}
+        <ProfilePaymentCard
+          onMakePayment={() => navigate("/account/payment")}
+          balance={user.balance}
+        />
 
       </div>
     </div>

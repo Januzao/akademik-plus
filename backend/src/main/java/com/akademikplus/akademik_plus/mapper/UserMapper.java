@@ -28,6 +28,7 @@ public class UserMapper {
         if (user.getRoom() != null) {
             dto.setRoomId(user.getRoom().getId());
             dto.setRoomNumber(user.getRoom().getRoomNumber());
+            dto.setMonthlyRent(user.getRoom().getRentPrice());
         }
         return dto;
     }
