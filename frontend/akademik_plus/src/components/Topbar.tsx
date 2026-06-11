@@ -1,8 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import IvysHome from '../assets/IvysHome.png';
-import userPlaceholder from '../assets/user.png';
 import { useAuth } from '../hooks/AuthContext';
+import { API_BASE } from '../api/client';
 
 function classNames(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
@@ -18,7 +18,10 @@ export default function Topbar() {
   };
 
   const navigation = isAdmin
-    ? [{ name: 'Dashboard', href: '/admin/dashboard' }]
+    ? [
+        { name: 'Dashboard', href: '/admin/dashboard' },
+        { name: 'Reports', href: '/admin/reports' },
+      ]
     : [];
 
   return (
@@ -63,11 +66,17 @@ export default function Topbar() {
                 <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
-                  <img
-                    alt=""
-                    src={userPlaceholder}
-                    className="size-11 rounded-full bg-green-800 outline -outline-offset-1 outline-white/10 object-cover"
-                  />
+                  {user?.profilePhoto ? (
+                    <img
+                      alt=""
+                      src={`${API_BASE}${user.profilePhoto}`}
+                      className="size-11 rounded-full outline -outline-offset-1 outline-white/10 object-cover"
+                    />
+                  ) : (
+                    <div className="size-11 rounded-full bg-green-800 outline -outline-offset-1 outline-white/10 flex items-center justify-center text-white font-semibold text-sm">
+                      {user?.email?.[0]?.toUpperCase() ?? '?'}
+                    </div>
+                  )}
                 </MenuButton>
 
                 <MenuItems

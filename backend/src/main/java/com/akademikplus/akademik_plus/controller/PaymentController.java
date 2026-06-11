@@ -35,6 +35,13 @@ public class PaymentController {
         return paymentService.findAll();
     }
 
+    @Operation(summary = "Get payments for the currently authenticated user")
+    @ApiResponse(responseCode = "200", description = "List of current user's payments")
+    @GetMapping("/my")
+    public List<PaymentResponseDTO> getMy(java.security.Principal principal) {
+        return paymentService.findByCurrentUser(principal.getName());
+    }
+
     @Operation(summary = "Get payment by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Payment found"),

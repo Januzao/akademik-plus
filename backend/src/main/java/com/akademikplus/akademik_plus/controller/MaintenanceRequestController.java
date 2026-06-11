@@ -38,6 +38,13 @@ public class MaintenanceRequestController {
         return maintenanceRequestService.findAll();
     }
 
+    @Operation(summary = "Get maintenance requests for the currently authenticated user")
+    @ApiResponse(responseCode = "200", description = "List returned")
+    @GetMapping("/my")
+    public List<MaintenanceRequestRespDTO> getMy(java.security.Principal principal) {
+        return maintenanceRequestService.findByCurrentUser(principal.getName());
+    }
+
     @Operation(summary = "Get maintenance request by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Request found"),

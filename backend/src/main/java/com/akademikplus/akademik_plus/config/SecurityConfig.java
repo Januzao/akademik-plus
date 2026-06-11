@@ -61,6 +61,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/payments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/maintenance-requests/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/maintenance-requests/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/room-history").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/room-history/user/**").hasRole("ADMIN")
 
                         // admin and student
                         .requestMatchers(HttpMethod.GET, "/api/rooms/**").hasAnyRole("ADMIN", "STUDENT")
@@ -68,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/payments/**").hasAnyRole("ADMIN", "STUDENT")
                         .requestMatchers(HttpMethod.GET, "/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/room-history/my").hasAnyRole("ADMIN", "STUDENT")
 
                         .anyRequest().authenticated()
                 )

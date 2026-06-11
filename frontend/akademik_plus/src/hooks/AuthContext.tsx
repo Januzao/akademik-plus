@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { API_BASE } from '../api/client';
 
 export type UserRole = 'ADMIN' | 'STUDENT';
@@ -6,6 +6,7 @@ export type UserRole = 'ADMIN' | 'STUDENT';
 export interface CurrentUser {
   email: string;
   role: UserRole;
+  profilePhoto: string | null;
 }
 
 interface AuthContextType {
@@ -16,11 +17,12 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfilePhoto: (url: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType>(null!);
 
-function decodeToken(token: string): CurrentUser | null {
+function decodeToken(token: string): Omit<CurrentUser, 'profilePhoto'> | null {
   try {
     const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
     return {
@@ -56,14 +58,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(loadStoredToken);
   const [user, setUser] = useState<CurrentUser | null>(() => {
     const t = loadStoredToken();
-    return t ? decodeToken(t) : null;
+    if (!t) return null;
+    const decoded = decodeToken(t);
+    return decoded ? { ...decoded, profilePhoto: null } : null;
   });
+
+  // Fetch profilePhoto from /api/auth/me whenever token changes
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_BASE}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then((data: { profilePhoto?: string | null } | null) => {
+        if (data) {
+          setUser(u => u ? { ...u, profilePhoto: data.profilePhoto ?? null } : u);
+        }
+      })
+      .catch(() => {});
+  }, [token]);
 
   const storeSession = (accessToken: string, refreshToken: string) => {
     localStorage.setItem('token', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     setToken(accessToken);
-    setUser(decodeToken(accessToken));
+    const decoded = decodeToken(accessToken);
+    setUser(decoded ? { ...decoded, profilePhoto: null } : null);
   };
 
   const clearSession = () => {
@@ -71,6 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('refreshToken');
     setToken(null);
     setUser(null);
+  };
+
+  const updateProfilePhoto = (url: string) => {
+    setUser(u => u ? { ...u, profilePhoto: url } : u);
   };
 
   const login = async (email: string, password: string) => {
@@ -121,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      updateProfilePhoto,
     }}>
       {children}
     </AuthContext.Provider>

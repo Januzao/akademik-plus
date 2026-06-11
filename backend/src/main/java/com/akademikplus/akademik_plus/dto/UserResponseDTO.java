@@ -54,4 +54,7 @@ public class UserResponseDTO {
 
     @Schema(description = "Current account balance in PLN", example = "350.00")
     private BigDecimal balance;
+
+    @Schema(description = "Monthly rent price for assigned room in PLN", example = "850.00")
+    private BigDecimal monthlyRent;
 }

@@ -12,8 +12,10 @@ import com.akademikplus.akademik_plus.repository.PasswordResetTokenRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
 import com.akademikplus.akademik_plus.security.JwtService;
 import com.akademikplus.akademik_plus.service.EmailService;
+import com.akademikplus.akademik_plus.service.FileStorageService;
 import com.akademikplus.akademik_plus.service.RefreshTokenService;
 import com.akademikplus.akademik_plus.service.TokenBlacklistService;
+import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,6 +39,7 @@ public class AuthService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final UserMapper userMapper;
+    private final FileStorageService fileStorageService;
 
     public AuthResponseDTO register(RegisterRequestDTO requestDTO) {
         if (userRepository.findByEmail(requestDTO.getEmail()).isPresent()) {
@@ -61,6 +64,17 @@ public class AuthService {
     public UserResponseDTO getMe(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+        return userMapper.toResponse(user);
+    }
+
+    public UserResponseDTO uploadPhoto(String email, MultipartFile file) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+        fileStorageService.delete(user.getProfilePhoto());
+        String url = fileStorageService.store(file, "users");
+        user.setProfilePhoto(url);
+        userRepository.save(user);
+        log.info("Profile photo updated for email={}, url={}", email, url);
         return userMapper.toResponse(user);
     }
 

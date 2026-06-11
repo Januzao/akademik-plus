@@ -9,6 +9,7 @@ import MakePaymentPage from './pages/MakePaymentPage';
 import RequestRepairPage from './pages/RepairPage';
 import RoomsPage from './pages/RoomsPage';
 import MaintenanceRequestPage from './pages/MaintenanceRequestsPage';
+import AdminReportsPage from './pages/AdminReportsPage';
 
 export default function App() {
   return (
@@ -41,6 +42,10 @@ export default function App() {
         <Route
           path="/admin/dashboard/maintenance_request"
           element={<ProtectedRoute requireAdmin><MaintenanceRequestPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/admin/reports"
+          element={<ProtectedRoute requireAdmin><AdminReportsPage /></ProtectedRoute>}
         />
       </Route>
 
