@@ -5,14 +5,14 @@ interface MaintenanceStatsProps {
 }
 
 export default function MaintenanceStats({ requests }: MaintenanceStatsProps) {
-  const pending = requests.filter((r) => r.status === "Pending").length;
-  const inProgress = requests.filter((r) => r.status === "In Progress").length;
-  const completed = requests.filter((r) => r.status === "Completed").length;
+  const pending    = requests.filter((r) => r.status === "PENDING").length;
+  const inProgress = requests.filter((r) => r.status === "IN_PROGRESS").length;
+  const resolved   = requests.filter((r) => r.status === "RESOLVED").length;
 
   const items = [
     { label: "Pending Requests", count: pending },
-    { label: "In Progress", count: inProgress },
-    { label: "Completed", count: completed },
+    { label: "In Progress",      count: inProgress },
+    { label: "Resolved",         count: resolved },
   ];
 
   return (
