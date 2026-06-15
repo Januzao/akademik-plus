@@ -1,120 +1,130 @@
 "use client";
 
 import { useState } from "react";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { apiFetch, handleResponse } from "../api/client";
+import { createPayment } from "../api/PaymentsApi";
 
 interface MakePaymentCardProps {
   onCancel: () => void;
+  onSuccess?: () => void;
 }
 
-export default function MakePaymentCard({ onCancel }: MakePaymentCardProps) {
-  const [cardNumber, setCardNumber] = useState("");
-  const [nameOnCard, setNameOnCard] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [amount, setAmount] = useState("850.00");
+interface MeResponse {
+  id: number;
+}
 
-  const handlePay = () => {
-    console.log({ cardNumber, nameOnCard, expiry, cvv, amount });
-    onCancel();
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      fontSize: "14px",
+      color: "#374151",
+      fontFamily: "ui-sans-serif, system-ui, sans-serif",
+      "::placeholder": { color: "#9ca3af" },
+    },
+    invalid: {
+      color: "#dc2626",
+    },
+  },
+};
+
+export default function MakePaymentCard({ onCancel, onSuccess }: MakePaymentCardProps) {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const [nameOnCard, setNameOnCard] = useState("");
+  const [amount, setAmount] = useState("");
+  const [paidFor, setPaidFor] = useState("Balance top-up");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handlePay = async () => {
+    setError(null);
+
+    const amt = parseFloat(amount);
+    if (!amount || isNaN(amt) || amt <= 0) {
+      setError("Enter a valid amount greater than 0.");
+      return;
+    }
+    if (!stripe || !elements) {
+      setError("Stripe is not loaded yet. Please wait.");
+      return;
+    }
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setError("Card field not found.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { token, error: stripeError } = await stripe.createToken(cardElement, {
+        name: nameOnCard.trim() || undefined,
+      });
+
+      if (stripeError) {
+        setError(stripeError.message ?? "Card error.");
+        return;
+      }
+      if (!token) {
+        setError("Could not tokenize card.");
+        return;
+      }
+
+      const me = await apiFetch("/api/auth/me").then(r => handleResponse<MeResponse>(r));
+
+      await createPayment({
+        userId: me.id,
+        paidFor: paidFor.trim() || "Balance top-up",
+        stripeToken: token.id,
+        amount: amt,
+      });
+
+      setSuccess(true);
+      setTimeout(() => {
+        onSuccess?.();
+        onCancel();
+      }, 1800);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Payment failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (success) {
+    return (
+      <div className="bg-white border border-green-100 shadow-sm p-7 flex flex-col items-center justify-center gap-4 min-h-64">
+        <div className="size-14 rounded-full bg-emerald-100 flex items-center justify-center">
+          <svg className="size-7 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        </div>
+        <div className="text-center">
+          <p className="text-base font-semibold text-gray-900">Payment successful</p>
+          <p className="text-sm text-gray-500 mt-1">{parseFloat(amount).toFixed(2)} PLN added to your balance</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border border-green-100 shadow-sm p-7">
 
-      {/* Header */}
       <h2 className="text-lg font-semibold text-gray-800">Make a Payment</h2>
       <p className="text-xs text-gray-400 mt-0.5 mb-5">
-        Choose your preferred payment method to complete your rent payment
+        Add funds to your account balance
       </p>
 
-      {/* Digital Wallets */}
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Digital Wallets</h3>
-
-      <button className="w-full flex items-center justify-center gap-2 bg-black hover:bg-gray-800 text-white text-sm font-medium rounded-lg py-3 mb-3 transition-colors">
-        <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/>
-        </svg>
-        Apple Pay
-      </button>
-
-      <button className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 text-sm font-medium rounded-lg py-3 transition-colors">
-        <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/>
-        </svg>
-        Google Pay
-      </button>
-
-      {/* "OR PAY WITH CARD" divider */}
-      <div className="flex items-center gap-4 my-6">
-        <div className="h-px bg-green-100 flex-1" />
-        <span className="text-xs text-gray-400 tracking-wider font-medium">OR PAY WITH CARD</span>
-        <div className="h-px bg-green-100 flex-1" />
-      </div>
-
-      {/* Card Number */}
-      <div className="flex flex-col gap-1.5 mb-4">
-        <label className="text-sm text-gray-800 font-medium">Card Number</label>
-        <div className="relative">
-          <svg className="size-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z"/>
-          </svg>
-          <input
-            type="text"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
-            placeholder="1234 5678 9012 3456"
-            className="w-full bg-green-50 border border-green-100 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-200"
-          />
-        </div>
-      </div>
-
-      {/* Name on Card */}
-      <div className="flex flex-col gap-1.5 mb-4">
-        <label className="text-sm text-gray-800 font-medium">Name on Card</label>
-        <div className="relative">
-          <svg className="size-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z"/>
-          </svg>
-          <input
-            type="text"
-            value={nameOnCard}
-            onChange={(e) => setNameOnCard(e.target.value)}
-            placeholder="John Smith"
-            className="w-full bg-green-50 border border-green-100 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-200"
-          />
-        </div>
-      </div>
-
-      {/* Expiry Date & CVV */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-gray-800 font-medium">Expiry Date</label>
-          <input
-            type="text"
-            value={expiry}
-            onChange={(e) => setExpiry(e.target.value)}
-            placeholder="MM/YY"
-            className="bg-green-50 border border-green-100 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-200"
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-gray-800 font-medium">CVV</label>
-          <input
-            type="text"
-            value={cvv}
-            onChange={(e) => setCvv(e.target.value)}
-            placeholder="123"
-            maxLength={4}
-            className="bg-green-50 border border-green-100 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-200"
-          />
-        </div>
-      </div>
-
       {/* Amount */}
-      <div className="flex flex-col gap-1.5 mb-6">
-        <label className="text-sm text-gray-800 font-medium">Amount ($)</label>
+      <div className="flex flex-col gap-1.5 mb-4">
+        <label className="text-sm text-gray-800 font-medium">Amount (PLN)</label>
         <input
-          type="text"
+          type="number"
+          min="0.01"
+          step="0.01"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0.00"
@@ -122,29 +132,83 @@ export default function MakePaymentCard({ onCancel }: MakePaymentCardProps) {
         />
       </div>
 
-      {/* Action buttons */}
+      {/* Description */}
+      <div className="flex flex-col gap-1.5 mb-5">
+        <label className="text-sm text-gray-800 font-medium">Description</label>
+        <input
+          type="text"
+          value={paidFor}
+          onChange={(e) => setPaidFor(e.target.value)}
+          placeholder="Balance top-up"
+          className="bg-green-50 border border-green-100 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-200"
+        />
+      </div>
+
+      <div className="flex items-center gap-4 mb-5">
+        <div className="h-px bg-green-100 flex-1" />
+        <span className="text-xs text-gray-400 tracking-wider font-medium">CARD DETAILS</span>
+        <div className="h-px bg-green-100 flex-1" />
+      </div>
+
+      {/* Name on card */}
+      <div className="flex flex-col gap-1.5 mb-4">
+        <label className="text-sm text-gray-800 font-medium">Name on Card</label>
+        <input
+          type="text"
+          value={nameOnCard}
+          onChange={(e) => setNameOnCard(e.target.value)}
+          placeholder="John Smith"
+          className="w-full bg-green-50 border border-green-100 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-200"
+        />
+      </div>
+
+      {/* Stripe CardElement */}
+      <div className="flex flex-col gap-1.5 mb-5">
+        <label className="text-sm text-gray-800 font-medium">Card</label>
+        <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-3 focus-within:ring-2 focus-within:ring-green-200">
+          <CardElement options={CARD_ELEMENT_OPTIONS} />
+        </div>
+        <p className="text-xs text-gray-400">Card number, expiry and CVV in one secure field</p>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {/* Buttons */}
       <div className="flex items-center justify-end gap-3 mb-5">
         <button
           onClick={onCancel}
-          className="px-5 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className="px-5 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handlePay}
-          className="flex items-center gap-1.5 px-5 py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+          disabled={loading || !stripe}
+          className="flex items-center gap-1.5 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
         >
-          <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z"/>
-          </svg>
-          Pay to Hotel
+          {loading ? (
+            <>
+              <svg className="size-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            `Pay ${amount ? `${parseFloat(amount || "0").toFixed(2)} PLN` : ""}`
+          )}
         </button>
       </div>
 
-      {/* Note */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3">
         <p className="text-xs text-gray-700">
-          <span className="font-semibold">Note:</span> All payments are processed securely. Your payment information will be encrypted and protected.
+          <span className="font-semibold">Note:</span> Card data goes directly to Stripe — it never touches our server.
         </p>
       </div>
 

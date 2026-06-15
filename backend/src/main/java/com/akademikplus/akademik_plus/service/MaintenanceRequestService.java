@@ -14,6 +14,7 @@ import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -41,6 +42,7 @@ public class MaintenanceRequestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance request not found with id: " + id));
     }
 
+    @Transactional
     public MaintenanceRequestRespDTO createRequest(MaintenanceRequestReqDTO dto, Long currentUserId) {
         User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + currentUserId));

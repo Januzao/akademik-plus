@@ -7,6 +7,7 @@ import ProfileEditCard, { type ProfileFormData } from "../components/ProfileEdit
 import ProfilePaymentCard from "../components/ProfilePaymentCard";
 import ProfileHousingHistoryCard from "../components/ProfileHousingHistoryCard";
 import ProfileMaintenanceCard from "../components/ProfileMaintenanceCard";
+import ProfileBillsCard from "../components/ProfileBillsCard";
 import { apiFetch, handleResponse } from "../api/client";
 import { useAuth } from "../hooks/AuthContext";
 
@@ -107,6 +108,7 @@ export default function ProfilePage() {
 
           <ProfileHousingHistoryCard />
           <ProfileMaintenanceCard />
+          <ProfileBillsCard />
         </div>
 
         {/* Right column — payment history */}
