@@ -3,8 +3,6 @@ package com.akademikplus.akademik_plus.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 @Data
@@ -38,24 +36,4 @@ public class AdminStatsDTO {
     @Schema(description = "Students without an assigned room")
     private int studentsWithoutRoom;
 
-    @Schema(description = "Students whose balance is below their monthly rent (in arrears)")
-    private int studentsInArrears;
-
-    @Schema(description = "Total outstanding debt across all students in arrears")
-    private BigDecimal totalArrears;
-
-    @Schema(description = "List of students in arrears")
-    private List<ArrearsEntryDTO> arrearsDetails;
-
-    @Data
-    @Schema(description = "A single arrears entry")
-    public static class ArrearsEntryDTO {
-        private Long userId;
-        private String name;
-        private String email;
-        private String roomNumber;
-        private BigDecimal balance;
-        private BigDecimal monthlyRent;
-        private BigDecimal deficit;
-    }
 }
