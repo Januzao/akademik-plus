@@ -8,9 +8,10 @@ import type { RoomResponseDTO } from "../dto/RoomResponseDTO";
 interface RoomsByFloorProps {
   floorNumber: number;
   filters: RoomFilters;
+  onRoomClick?: (room: RoomResponseDTO) => void;
 }
 
-export default function RoomsByFloor({ floorNumber, filters }: RoomsByFloorProps) {
+export default function RoomsByFloor({ floorNumber, filters, onRoomClick }: RoomsByFloorProps) {
   const [rooms, setRooms] = useState<RoomResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export default function RoomsByFloor({ floorNumber, filters }: RoomsByFloorProps
   return (
     <div className="grid gap-3 grid-cols-1 sm:grid-cols-4 lg:grid-cols-8">
       {filteredRooms.map((room) => (
-        <RoomCard key={room.id} room={room} />
+        <RoomCard key={room.id} room={room} onClick={onRoomClick} />
       ))}
     </div>
   );

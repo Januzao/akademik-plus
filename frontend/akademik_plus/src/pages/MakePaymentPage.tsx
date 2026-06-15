@@ -1,5 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import MakePaymentCard from "../components/MakePaymentCard";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
 
 export default function MakePaymentPage() {
   const navigate = useNavigate();
@@ -9,7 +13,6 @@ export default function MakePaymentPage() {
     <div className="bg-[#f0f4f0] py-8">
       <div className="w-full max-w-2xl mx-auto">
 
-        {/* Back link */}
         <button
           onClick={goBack}
           className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 mb-6 transition-colors"
@@ -20,7 +23,9 @@ export default function MakePaymentPage() {
           Back to Profile
         </button>
 
-        <MakePaymentCard onCancel={goBack} />
+        <Elements stripe={stripePromise}>
+          <MakePaymentCard onCancel={goBack} />
+        </Elements>
       </div>
     </div>
   );

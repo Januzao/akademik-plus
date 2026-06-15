@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { RoomResponseDTO } from "../dto/RoomResponseDTO";
 import { patchUser } from "../api/UsersApi";
+import { fetchBillsByUser, createBill, cancelBill, type BillDTO } from "../api/BillsApi";
 
 export interface AdminUserDTO {
   id: number;
@@ -26,15 +27,47 @@ function getInitials(firstName?: string, lastName?: string) {
   return `${f}${l}`.toUpperCase() || "?";
 }
 
+const BILL_STATUS_STYLES: Record<string, string> = {
+  PENDING:   "bg-yellow-100 text-yellow-700",
+  PAID:      "bg-emerald-100 text-emerald-700",
+  CANCELLED: "bg-gray-100 text-gray-500",
+};
+
+function formatDate(raw?: string | null): string {
+  if (!raw) return "";
+  return new Date(raw).toLocaleDateString("uk-UA", { day: "2-digit", month: "short", year: "numeric" });
+}
+
 export default function AdminUserEditPanel({ user, rooms, onClose, onSaved }: AdminUserEditPanelProps) {
+  // room / status
   const [roomId, setRoomId] = useState<number | "">(user.roomId ?? "");
   const [isActive, setIsActive] = useState(user.isActive ?? true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // bills list
+  const [bills, setBills] = useState<BillDTO[]>([]);
+  const [billsLoading, setBillsLoading] = useState(true);
+
+  // new bill form
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [issuing, setIssuing] = useState(false);
+  const [billError, setBillError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchBillsByUser(user.id)
+      .then(setBills)
+      .catch(() => {})
+      .finally(() => setBillsLoading(false));
+  }, [user.id]);
 
   const handleSave = async () => {
     setSaving(true);
-    setError(null);
+    setSaveError(null);
     try {
       await patchUser(user.id, {
         roomId: roomId === "" ? null : roomId,
@@ -42,25 +75,58 @@ export default function AdminUserEditPanel({ user, rooms, onClose, onSaved }: Ad
       });
       onSaved({ ...user, roomId: roomId === "" ? undefined : roomId, isActive });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+      setSaveError(err instanceof Error ? err.message : "Save failed");
     } finally {
       setSaving(false);
     }
   };
 
+  const handleIssueBill = async () => {
+    if (!title.trim()) { setBillError("Title is required"); return; }
+    const amt = parseFloat(amount);
+    if (!amount || isNaN(amt) || amt <= 0) { setBillError("Amount must be greater than 0"); return; }
+    if (!dueDate) { setBillError("Due date is required"); return; }
+
+    setIssuing(true);
+    setBillError(null);
+    try {
+      const created = await createBill({
+        userId: user.id,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        amount: amt,
+        dueDate,
+      });
+      setBills(prev => [created, ...prev]);
+      setTitle("");
+      setDescription("");
+      setAmount("");
+      setDueDate("");
+      setShowForm(false);
+    } catch (err) {
+      setBillError(err instanceof Error ? err.message : "Failed to issue bill");
+    } finally {
+      setIssuing(false);
+    }
+  };
+
+  const handleCancelBill = async (id: number) => {
+    try {
+      const updated = await cancelBill(id);
+      setBills(prev => prev.map(b => b.id === id ? updated : b));
+    } catch { /* silent */ }
+  };
+
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/30 z-40"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 flex flex-col">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 shrink-0">
           <h2 className="text-base font-semibold text-gray-900">Edit User</h2>
           <button
             onClick={onClose}
@@ -75,15 +141,13 @@ export default function AdminUserEditPanel({ user, rooms, onClose, onSaved }: Ad
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
 
-          {/* User info (read-only) */}
+          {/* User info */}
           <div className="flex items-center gap-4">
             <div className="size-14 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg shrink-0">
               {getInitials(user.firstName, user.lastName)}
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">
-                {user.firstName} {user.lastName}
-              </p>
+              <p className="text-sm font-semibold text-gray-900">{user.firstName} {user.lastName}</p>
               <p className="text-xs text-gray-500">{user.email}</p>
               {user.phone && <p className="text-xs text-gray-400">{user.phone}</p>}
             </div>
@@ -117,7 +181,7 @@ export default function AdminUserEditPanel({ user, rooms, onClose, onSaved }: Ad
             </select>
           </div>
 
-          {/* Active / Disabled toggle */}
+          {/* Account Status */}
           <div className="space-y-2">
             <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
               <svg className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -151,15 +215,142 @@ export default function AdminUserEditPanel({ user, rooms, onClose, onSaved }: Ad
             </div>
           </div>
 
-          {error && (
+          {saveError && (
             <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-              {error}
+              {saveError}
             </div>
           )}
+
+          <div className="h-px bg-gray-100" />
+
+          {/* Bills section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                <svg className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185Z" />
+                </svg>
+                Bills
+              </p>
+              <button
+                type="button"
+                onClick={() => { setShowForm(f => !f); setBillError(null); }}
+                className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-800 transition-colors"
+              >
+                <svg className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d={showForm ? "M6 18 18 6M6 6l12 12" : "M12 4.5v15m7.5-7.5h-15"} />
+                </svg>
+                {showForm ? "Cancel" : "Issue Bill"}
+              </button>
+            </div>
+
+            {/* Issue bill form */}
+            {showForm && (
+              <div className="rounded-lg border border-green-200 bg-green-50 p-4 space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-600">Title *</label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    placeholder="e.g. Monthly rent, Utilities"
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600">Description</label>
+                  <textarea
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    placeholder="Optional details..."
+                    rows={2}
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600 resize-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">Amount (PLN) *</label>
+                    <input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={amount}
+                      onChange={e => setAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">Due Date *</label>
+                    <input
+                      type="date"
+                      value={dueDate}
+                      onChange={e => setDueDate(e.target.value)}
+                      className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600"
+                    />
+                  </div>
+                </div>
+                {billError && (
+                  <p className="text-xs text-red-600">{billError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleIssueBill}
+                  disabled={issuing}
+                  className="w-full rounded-lg bg-green-700 py-2 text-sm font-medium text-white hover:bg-green-800 transition-colors disabled:opacity-60"
+                >
+                  {issuing ? "Issuing..." : "Issue Bill"}
+                </button>
+              </div>
+            )}
+
+            {/* Bills list */}
+            {billsLoading ? (
+              <p className="text-xs text-gray-400">Loading bills...</p>
+            ) : bills.length === 0 ? (
+              <p className="text-xs text-gray-400">No bills issued yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {bills.map(bill => (
+                  <div key={bill.id} className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{bill.title}</p>
+                        {bill.description && (
+                          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{bill.description}</p>
+                        )}
+                        <p className="text-xs text-gray-400 mt-1">
+                          Due: {formatDate(bill.dueDate)}
+                          {bill.paidDate && ` · Paid: ${formatDate(bill.paidDate)}`}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <span className="text-sm font-bold text-gray-900">
+                          {bill.amount.toFixed(2)} PLN
+                        </span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${BILL_STATUS_STYLES[bill.status] ?? "bg-gray-100 text-gray-500"}`}>
+                          {bill.status}
+                        </span>
+                      </div>
+                    </div>
+                    {bill.status === "PENDING" && (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelBill(bill.id)}
+                        className="mt-2 text-xs text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        Cancel bill
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-100 px-6 py-4 flex gap-3">
+        <div className="border-t border-gray-100 px-6 py-4 flex gap-3 shrink-0">
           <button
             onClick={onClose}
             disabled={saving}

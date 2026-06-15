@@ -209,6 +209,8 @@ export default function ProfileDetailsCard({
           <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2 text-sm font-semibold text-green-700">
             {monthlyRent != null
               ? `${Number(monthlyRent).toFixed(2)} PLN / month`
+              : roomNumber != null
+              ? <span className="text-gray-400 font-normal italic">Price not set</span>
               : <span className="text-gray-400 font-normal italic">No room assigned</span>}
           </div>
         </div>

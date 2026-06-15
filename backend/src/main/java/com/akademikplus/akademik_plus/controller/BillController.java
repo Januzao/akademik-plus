@@ -1,7 +1,6 @@
 package com.akademikplus.akademik_plus.controller;
 
 import com.akademikplus.akademik_plus.dto.BillCreateDTO;
-import com.akademikplus.akademik_plus.dto.BillPayDTO;
 import com.akademikplus.akademik_plus.dto.BillResponseDTO;
 import com.akademikplus.akademik_plus.exception.ErrorResponse;
 import com.akademikplus.akademik_plus.service.BillService;
@@ -86,9 +85,8 @@ public class BillController {
     @PostMapping("/{id}/pay")
     public ResponseEntity<BillResponseDTO> pay(
             @Parameter(description = "Bill ID") @PathVariable Long id,
-            @RequestBody BillPayDTO payDto,
             Principal principal) {
-        return ResponseEntity.ok(billService.payBill(id, payDto.getStripeToken(), principal.getName()));
+        return ResponseEntity.ok(billService.payBill(id, principal.getName()));
     }
 
     @Operation(summary = "Cancel a bill (admin only)")

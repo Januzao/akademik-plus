@@ -23,3 +23,18 @@ export async function fetchAllPayments(): Promise<PaymentDTO[]> {
   const res = await apiFetch('/api/payments');
   return handleResponse<PaymentDTO[]>(res).then(data => data ?? []);
 }
+
+export interface PaymentCreateDTO {
+  userId: number;
+  paidFor: string;
+  stripeToken: string;
+  amount: number;
+}
+
+export async function createPayment(dto: PaymentCreateDTO): Promise<PaymentDTO> {
+  const res = await apiFetch('/api/payments', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+  return handleResponse<PaymentDTO>(res);
+}

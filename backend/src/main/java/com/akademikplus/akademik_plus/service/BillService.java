@@ -14,8 +14,6 @@ import com.akademikplus.akademik_plus.mapper.BillMapper;
 import com.akademikplus.akademik_plus.repository.BillRepository;
 import com.akademikplus.akademik_plus.repository.PaymentRepository;
 import com.akademikplus.akademik_plus.repository.UserRepository;
-import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -96,7 +92,7 @@ public class BillService {
     }
 
     @Transactional
-    public BillResponseDTO payBill(Long billId, String stripeToken, String userEmail) {
+    public BillResponseDTO payBill(Long billId, String userEmail) {
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill not found with id: " + billId));
 
@@ -110,44 +106,26 @@ public class BillService {
             throw new ValidationException("Only pending bills can be paid. Current status: " + bill.getStatus());
         }
 
+        BigDecimal balance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+        if (balance.compareTo(bill.getAmount()) < 0) {
+            throw new PaymentException("Insufficient balance. Available: " + balance + " PLN, required: " + bill.getAmount() + " PLN.");
+        }
+
+        user.setBalance(balance.subtract(bill.getAmount()));
+        userRepository.save(user);
+
         Payment payment = new Payment();
         payment.setUser(user);
         payment.setAmount(bill.getAmount());
-        payment.setPaidFor(bill.getTitle());
+        payment.setPaidFor("Bill: " + bill.getTitle());
         payment.setPaymentDate(LocalDate.now());
-        payment.setStatus(PaymentStatus.PENDING);
+        payment.setStatus(PaymentStatus.COMPLETED);
+        payment = paymentRepository.save(payment);
 
-        try {
-            int amountInCents = bill.getAmount().multiply(new BigDecimal(100)).intValue();
+        bill.setStatus(BillStatus.PAID);
+        bill.setPayment(payment);
 
-            Map<String, Object> chargeParams = new HashMap<>();
-            chargeParams.put("amount", amountInCents);
-            chargeParams.put("currency", "pln");
-            chargeParams.put("source", stripeToken);
-            chargeParams.put("description", "Bill payment: " + bill.getTitle());
-
-            Charge charge = Charge.create(chargeParams);
-
-            if (charge.getPaid()) {
-                payment.setStatus(PaymentStatus.COMPLETED);
-                payment.setTransactionId(charge.getId());
-                payment = paymentRepository.save(payment);
-
-                bill.setStatus(BillStatus.PAID);
-                bill.setPayment(payment);
-                log.info("Bill {} paid by userId={}, chargeId={}", billId, user.getId(), charge.getId());
-            } else {
-                payment.setStatus(PaymentStatus.FAILED);
-                paymentRepository.save(payment);
-                throw new PaymentException("Payment was not completed by Stripe.");
-            }
-        } catch (StripeException e) {
-            payment.setStatus(PaymentStatus.FAILED);
-            paymentRepository.save(payment);
-            log.error("Stripe error for billId={}, userId={}: {}", billId, user.getId(), e.getMessage());
-            throw new PaymentException("Stripe error: " + e.getMessage());
-        }
-
+        log.info("Bill {} paid from balance by userId={}, amount={}", billId, user.getId(), bill.getAmount());
         return billMapper.toResponse(billRepository.save(bill));
     }
 
