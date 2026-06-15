@@ -10,7 +10,6 @@ import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,38 +50,6 @@ public class AdminStatsService {
         dto.setActiveStudents((int) activeStudents);
         dto.setStudentsWithoutRoom((int) students.stream().filter(u -> u.getRoom() == null).count());
 
-        List<AdminStatsDTO.ArrearsEntryDTO> arrears = students.stream()
-                .filter(u -> u.getRoom() != null && u.getRoom().getRentPrice() != null)
-                .filter(u -> {
-                    BigDecimal balance = u.getBalance() != null ? u.getBalance() : BigDecimal.ZERO;
-                    return balance.compareTo(u.getRoom().getRentPrice()) < 0;
-                })
-                .map(u -> {
-                    AdminStatsDTO.ArrearsEntryDTO entry = new AdminStatsDTO.ArrearsEntryDTO();
-                    entry.setUserId(u.getId());
-                    String name = trim(u.getFirstName()) + " " + trim(u.getLastName());
-                    entry.setName(name.isBlank() ? u.getEmail() : name.trim());
-                    entry.setEmail(u.getEmail());
-                    entry.setRoomNumber(u.getRoom().getRoomNumber());
-                    BigDecimal balance = u.getBalance() != null ? u.getBalance() : BigDecimal.ZERO;
-                    entry.setBalance(balance);
-                    entry.setMonthlyRent(u.getRoom().getRentPrice());
-                    entry.setDeficit(u.getRoom().getRentPrice().subtract(balance));
-                    return entry;
-                })
-                .toList();
-
-        dto.setStudentsInArrears(arrears.size());
-        BigDecimal totalDebt = arrears.stream()
-                .map(AdminStatsDTO.ArrearsEntryDTO::getDeficit)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        dto.setTotalArrears(totalDebt);
-        dto.setArrearsDetails(arrears);
-
         return dto;
-    }
-
-    private String trim(String s) {
-        return s == null ? "" : s;
     }
 }

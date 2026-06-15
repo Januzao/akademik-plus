@@ -64,6 +64,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/room-history").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/room-history/user/**").hasRole("ADMIN")
+                        // bills — admin management (more specific rules first)
+                        .requestMatchers(HttpMethod.POST, "/api/bills").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/bills").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/bills/user/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/bills/*/cancel").hasRole("ADMIN")
 
                         // admin and student
                         .requestMatchers(HttpMethod.GET, "/api/rooms/**").hasAnyRole("ADMIN", "STUDENT")
@@ -72,6 +77,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/maintenance-requests/**").hasAnyRole("ADMIN", "STUDENT")
                         .requestMatchers(HttpMethod.GET, "/api/room-history/my").hasAnyRole("ADMIN", "STUDENT")
+                        // bills — shared access
+                        .requestMatchers(HttpMethod.GET, "/api/bills/**").hasAnyRole("ADMIN", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/bills/*/pay").hasAnyRole("ADMIN", "STUDENT")
 
                         .anyRequest().authenticated()
                 )
