@@ -1,6 +1,14 @@
 import type { MaintenanceRequestReqDTO, MaintenanceRequestRespDTO } from '../dto/MaintenanceRequestDTO';
 import { apiFetch, handleResponse } from './client';
 
+export interface MaintenanceMessageDTO {
+  id: number;
+  senderName: string;
+  senderRole: 'STUDENT' | 'ADMIN';
+  text: string;
+  createdAt: string;
+}
+
 const MAINTENANCE_URL = '/api/maintenance-requests';
 
 export async function fetchMyMaintenanceRequests(): Promise<MaintenanceRequestRespDTO[]> {
@@ -51,4 +59,17 @@ export async function uploadMaintenancePhoto(id: number, file: File): Promise<Ma
 export async function deleteMaintenanceRequest(id: number): Promise<null> {
   const res = await apiFetch(`${MAINTENANCE_URL}/${id}`, { method: 'DELETE' });
   return handleResponse<null>(res);
+}
+
+export async function fetchMessages(requestId: number): Promise<MaintenanceMessageDTO[]> {
+  const res = await apiFetch(`${MAINTENANCE_URL}/${requestId}/messages`);
+  return handleResponse<MaintenanceMessageDTO[]>(res).then(data => data ?? []);
+}
+
+export async function postMessage(requestId: number, text: string): Promise<MaintenanceMessageDTO> {
+  const res = await apiFetch(`${MAINTENANCE_URL}/${requestId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  });
+  return handleResponse<MaintenanceMessageDTO>(res);
 }

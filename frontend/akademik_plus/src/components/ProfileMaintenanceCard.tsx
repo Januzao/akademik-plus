@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchMyMaintenanceRequests } from "../api/MaintenanceApi";
 import type { MaintenanceRequestRespDTO } from "../dto/MaintenanceRequestDTO";
 import { API_BASE } from "../api/client";
+import MaintenanceChatThread from "./MaintenanceChatThread";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string }> = {
   PENDING:     { label: "Pending",     dot: "bg-yellow-400", badge: "bg-yellow-50 text-yellow-700 border-yellow-200" },
@@ -176,6 +177,11 @@ export default function ProfileMaintenanceCard() {
                         </div>
                       )}
                     </div>
+
+                    {/* Chat thread */}
+                    {req.id != null && (
+                      <MaintenanceChatThread requestId={req.id} />
+                    )}
                   </div>
                 )}
               </div>

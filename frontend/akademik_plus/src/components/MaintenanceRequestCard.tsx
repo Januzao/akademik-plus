@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { MaintenanceRequestReqDTO } from "../dto/MaintenanceRequestDTO";
 import { updateMaintenanceStatus } from "../api/MaintenanceApi";
 import { API_BASE } from "../api/client";
+import MaintenanceChatThread from "./MaintenanceChatThread";
 
 interface MaintenanceRequestCardProps {
   request: MaintenanceRequestReqDTO;
@@ -218,6 +219,11 @@ export default function MaintenanceRequestCard({
                 onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             </div>
+          )}
+
+          {/* Chat thread */}
+          {request.id != null && (
+            <MaintenanceChatThread requestId={request.id} />
           )}
         </div>
       )}
