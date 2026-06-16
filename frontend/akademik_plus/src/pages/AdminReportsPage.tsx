@@ -124,10 +124,10 @@ export default function AdminReportsPage() {
             </section>
 
             {/* Arrears table */}
-            {stats.arrearsDetails.length > 0 && (
+            {(stats.arrearsDetails?.length ?? 0) > 0 && (
               <section>
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400 mb-3">
-                  Students in arrears ({stats.arrearsDetails.length})
+                  Students in arrears ({stats.arrearsDetails?.length ?? 0})
                 </h2>
                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                   <table className="w-full text-sm">

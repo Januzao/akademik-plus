@@ -1,6 +1,7 @@
 package com.akademikplus.akademik_plus.service;
 
 import com.akademikplus.akademik_plus.dto.AdminStatsDTO;
+import com.akademikplus.akademik_plus.dto.ArrearsEntryDTO;
 import com.akademikplus.akademik_plus.entity.Room;
 import com.akademikplus.akademik_plus.entity.User;
 import com.akademikplus.akademik_plus.enums.OccupancyStatus;
@@ -10,6 +11,7 @@ import com.akademikplus.akademik_plus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,6 +51,37 @@ public class AdminStatsService {
         long activeStudents = students.stream().filter(u -> Boolean.TRUE.equals(u.getIsActive())).count();
         dto.setActiveStudents((int) activeStudents);
         dto.setStudentsWithoutRoom((int) students.stream().filter(u -> u.getRoom() == null).count());
+
+        List<ArrearsEntryDTO> arrearsDetails = students.stream()
+                .filter(u -> Boolean.TRUE.equals(u.getIsActive())
+                        && u.getRoom() != null
+                        && u.getRoom().getRentPrice() != null)
+                .filter(u -> {
+                    BigDecimal balance = u.getBalance() == null ? BigDecimal.ZERO : u.getBalance();
+                    return balance.compareTo(u.getRoom().getRentPrice()) < 0;
+                })
+                .map(u -> {
+                    BigDecimal balance = u.getBalance() == null ? BigDecimal.ZERO : u.getBalance();
+                    BigDecimal rent = u.getRoom().getRentPrice();
+                    return new ArrearsEntryDTO(
+                            u.getId(),
+                            u.getFirstName() + " " + u.getLastName(),
+                            u.getEmail(),
+                            u.getRoom().getRoomNumber(),
+                            balance,
+                            rent,
+                            rent.subtract(balance)
+                    );
+                })
+                .toList();
+
+        BigDecimal totalArrears = arrearsDetails.stream()
+                .map(ArrearsEntryDTO::getDeficit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        dto.setStudentsInArrears(arrearsDetails.size());
+        dto.setTotalArrears(totalArrears);
+        dto.setArrearsDetails(arrearsDetails);
 
         return dto;
     }
