@@ -66,6 +66,19 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # ── cAdvisor (container metrics) ────────────────────────────────────────────
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: akademik-plus-cadvisor
+    ports:
+      - "8090:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   uploads_data:
