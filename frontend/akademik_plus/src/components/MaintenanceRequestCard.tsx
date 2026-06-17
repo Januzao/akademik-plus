@@ -40,7 +40,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   Other: "🛠️",
 };
 
-/* ── helpers ───────────────────────────────────────────────── */
 function formatDate(raw?: string): string {
   if (!raw) return "";
   const d = new Date(raw);
@@ -51,18 +50,16 @@ function formatDate(raw?: string): string {
   });
 }
 
-/* ── component ─────────────────────────────────────────────── */
 export default function MaintenanceRequestCard({
   request,
   onStatusChange,
   onViewDetails,
 }: MaintenanceRequestCardProps) {
-  const [localStatus, setLocalStatus] = useState(request.status ?? "PENDING");
+  const [localStatus, setLocalStatus] = useState<string>(request.status ?? "PENDING");
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
-  /* ── status change → PATCH to backend ── */
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const next = e.target.value;
     const prevStatus = localStatus;
@@ -82,7 +79,6 @@ export default function MaintenanceRequestCard({
     }
   };
 
-  /* ── details toggle ── */
   const handleViewDetails = () => {
     setShowDetails((prev) => !prev);
     onViewDetails?.(request);
@@ -112,19 +108,14 @@ export default function MaintenanceRequestCard({
           <span className="text-[9px]">⊙</span> {STATUS_LABELS[localStatus] ?? localStatus}
         </span>
       </div>
-
-      {/* Row 2 — category + date */}
       <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
         <span>{icon}</span>
         <span>{category}</span>
         <span className="text-gray-300">•</span>
         <span>{formatDate(request.requestDate)}</span>
       </div>
-
-      {/* Row 3 — description */}
       <p className="mt-2 text-sm text-gray-700">{request.description}</p>
 
-      {/* Row 3b — photo thumbnail */}
       {request.photoUrl && (
         <img
           src={`${API_BASE}${request.photoUrl}`}
@@ -134,7 +125,6 @@ export default function MaintenanceRequestCard({
         />
       )}
 
-      {/* Row 4 — tenant info */}
       {(request.tenantName || request.tenantPhone) && (
         <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-gray-500">
           {request.tenantName && (
@@ -149,12 +139,10 @@ export default function MaintenanceRequestCard({
         </div>
       )}
 
-      {/* Error message */}
       {error && (
         <p className="mt-2 text-xs text-red-600">{error}</p>
       )}
 
-      {/* Row 5 — actions */}
       <div className="mt-4 flex items-center gap-4 border-t border-gray-100 pt-3">
         <div className="relative">
           <select
@@ -184,7 +172,6 @@ export default function MaintenanceRequestCard({
         </button>
       </div>
 
-      {/* ── Expanded details panel ── */}
       {showDetails && (
         <div className="mt-3 rounded-md border border-gray-100 bg-gray-50 p-4">
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
@@ -202,13 +189,11 @@ export default function MaintenanceRequestCard({
             <DetailRow label="Phone" value={request.tenantPhone} />
           </dl>
 
-          {/* Description — full width */}
           <div className="mt-3">
             <span className="text-xs font-medium text-gray-400">Description</span>
             <p className="mt-0.5 text-sm text-gray-700">{request.description}</p>
           </div>
 
-          {/* Photo */}
           {request.photoUrl && (
             <div className="mt-3">
               <span className="text-xs font-medium text-gray-400">Photo</span>

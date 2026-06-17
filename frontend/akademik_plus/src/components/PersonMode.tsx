@@ -39,7 +39,7 @@ export default function PersonMode({ search }: PersonModeProps) {
     Promise.all([fetchUsers(), fetchRooms()])
       .then(([users, roomList]) => {
         if (!active) return;
-        setPeople(users);
+        setPeople(users as UserResponseDTO[]);
         setRooms(roomList);
       })
       .catch((err) => {

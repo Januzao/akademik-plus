@@ -4,7 +4,7 @@ export interface MaintenanceRequestReqDTO {
   roomNumber?: string;
   category?: string;
   priority?: "High" | "Medium" | "Low";
-  status?: "Pending" | "In Progress" | "Completed";
+  status?: "PENDING" | "IN_PROGRESS" | "RESOLVED";
   description?: string;
   requestDate?: string;
   photoUrl?: string;
@@ -16,7 +16,7 @@ export interface MaintenanceRequestRespDTO {
   id?: number;
   category?: string;
   priority?: "High" | "Medium" | "Low" | string;
-  status?: "Pending" | "In Progress" | "Completed" | string;
+  status?: "PENDING" | "IN_PROGRESS" | "RESOLVED" | string;
   description?: string;
   requestDate?: string;
   photoUrl?: string;
