@@ -79,6 +79,33 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     restart: unless-stopped
 
+  # ── Ollama (LLM runner) ─────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: akademik-plus-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  # ── Open WebUI (chat UI for Ollama) ─────────────────────────────────────────
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: akademik-plus-open-webui
+    ports:
+      - "3000:8080"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_AUTH: "false"
+    volumes:
+      - open_webui_data:/app/backend/data
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   uploads_data:
+  ollama_data:
+  open_webui_data:
